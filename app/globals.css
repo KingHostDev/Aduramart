@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+:root {
+  --royal: #6c3cf0;
+  --ivory: #fff9f2;
+  --lavender: #f3eeff;
+  --purple-surface: #ece6ff;
+  --gold: #ffb86b;
+  --ink: #1f1f1f;
+  --muted: #6b7280;
+  --line: rgba(108, 60, 240, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(255, 184, 107, 0.2), transparent 32rem),
+    linear-gradient(180deg, #fff9f2 0%, #ffffff 42%, #f7f3ff 100%);
+  color: var(--ink);
+  font-family: var(--font-manrope), Manrope, ui-sans-serif, system-ui, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.container {
+  width: min(1180px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.glass {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow: 0 20px 70px rgba(69, 37, 143, 0.13);
+  backdrop-filter: blur(20px);
+}
+
+.card {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 18px 50px rgba(72, 41, 132, 0.09);
+}
+
+.soft-gradient {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 184, 107, 0.26), transparent 28rem),
+    radial-gradient(circle at 84% 10%, rgba(108, 60, 240, 0.22), transparent 34rem),
+    linear-gradient(135deg, #fff9f2 0%, #f3eeff 54%, #ffffff 100%);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
