@@ -13,12 +13,13 @@ export async function loginAdmin(formData: FormData) {
     redirect("/admin?error=not-configured");
   }
 
-  const email = String(formData.get("email") ?? "");
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error || !data.user) {
-    redirect("/admin?error=invalid-login");
+    const reason = error?.code ?? error?.message?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "invalid-login";
+    redirect(`/admin?error=${encodeURIComponent(reason)}`);
   }
 
   const { data: profile } = await adminClient
@@ -43,12 +44,13 @@ export async function loginVendor(formData: FormData) {
     redirect("/vendor-login?error=not-configured");
   }
 
-  const email = String(formData.get("email") ?? "");
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect("/vendor-login?error=invalid-login");
+    const reason = error.code ?? error.message?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "invalid-login";
+    redirect(`/vendor-login?error=${encodeURIComponent(reason)}`);
   }
 
   redirect("/vendor/dashboard");

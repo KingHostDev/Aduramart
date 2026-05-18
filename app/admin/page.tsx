@@ -2,7 +2,9 @@ import { LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { loginAdmin } from "@/lib/actions";
 
-export default function AdminLoginPage() {
+export default async function AdminLoginPage({ searchParams }: { searchParams?: Promise<{ error?: string }> }) {
+  const params = searchParams ? await searchParams : {};
+
   return (
     <>
       <Nav />
@@ -18,6 +20,7 @@ export default function AdminLoginPage() {
         </section>
         <form action={loginAdmin} className="card rounded-[26px] p-6 md:p-8">
           <h2 className="text-3xl font-black">Admin login</h2>
+          {params.error ? <LoginError error={params.error} /> : null}
           <div className="mt-6 grid gap-4">
             <label className="grid gap-2 text-sm font-extrabold">
               Admin Email
@@ -40,5 +43,21 @@ export default function AdminLoginPage() {
         </form>
       </main>
     </>
+  );
+}
+
+function LoginError({ error }: { error: string }) {
+  const messages: Record<string, string> = {
+    "not-configured": "Supabase environment variables are missing on this deployment.",
+    unauthorized: "This account is not marked as an Admin or Super Admin.",
+    invalid_credentials: "Supabase rejected the email or password.",
+    email_not_confirmed: "This email is not confirmed in Supabase Auth.",
+    "invalid-login": "Supabase rejected the login details."
+  };
+
+  return (
+    <div className="mt-5 rounded-2xl bg-[#fff1f1] p-4 text-sm font-extrabold leading-6 text-[#EF4444]">
+      {messages[error] ?? `Login failed: ${error}`}
+    </div>
   );
 }
