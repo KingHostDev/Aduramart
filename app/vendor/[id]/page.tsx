@@ -16,7 +16,12 @@ export default async function VendorStorefront({ params }: { params: Promise<{ i
   }
 
   const storeProducts = await getApprovedProductsByVendorId(vendor.id);
-  const whatsappHref = vendor.whatsapp ? `https://wa.me/${vendor.whatsapp.replace(/[^0-9]/g, "")}` : "/messages";
+  const whatsappMessage = encodeURIComponent(
+    `Hello ${vendor.storeName}, I found your verified store on AduraMart and I would like to ask about your spiritual products.`
+  );
+  const whatsappHref = vendor.whatsapp
+    ? `https://wa.me/${vendor.whatsapp.replace(/[^0-9]/g, "")}?text=${whatsappMessage}`
+    : "/messages";
 
   return (
     <>
