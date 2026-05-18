@@ -2,12 +2,11 @@ import { Filter, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import { Footer } from "@/components/footer";
 import { Nav } from "@/components/nav";
 import { ProductCard, VendorCard } from "@/components/ui";
-import { categories, vendors } from "@/lib/data";
-import { getApprovedProducts } from "@/lib/queries";
+import { categories } from "@/lib/data";
+import { getApprovedProducts, getApprovedVendors } from "@/lib/queries";
 
 export default async function Marketplace() {
-  const products = await getApprovedProducts();
-  const approvedVendors = vendors.filter((vendor) => vendor.status === "approved");
+  const [products, approvedVendors] = await Promise.all([getApprovedProducts(), getApprovedVendors()]);
 
   return (
     <>
@@ -56,8 +55,8 @@ export default async function Marketplace() {
               <p className="text-sm font-black">Price range</p>
               <input type="range" min="2000" max="50000" className="mt-4 w-full accent-[#6C3CF0]" />
               <div className="mt-2 flex justify-between text-xs font-bold text-[#6B7280]">
-                <span>₦2k</span>
-                <span>₦50k+</span>
+                <span>â‚¦2k</span>
+                <span>â‚¦50k+</span>
               </div>
             </div>
           </aside>

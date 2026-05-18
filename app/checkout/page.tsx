@@ -1,9 +1,10 @@
 import { CreditCard, Landmark, PackageCheck, Truck } from "lucide-react";
+import { CheckoutSummaryClient } from "@/components/checkout-summary-client";
 import { Nav } from "@/components/nav";
-import { formatNaira, products } from "@/lib/data";
+import { getApprovedProducts } from "@/lib/queries";
 
-export default function CheckoutPage() {
-  const total = products.filter((product) => product.status === "approved").slice(0, 3).reduce((sum, product) => sum + product.price, 2500);
+export default async function CheckoutPage() {
+  const products = await getApprovedProducts();
 
   return (
     <>
@@ -40,14 +41,7 @@ export default function CheckoutPage() {
           </div>
           <button className="mt-8 w-full rounded-full bg-[#6C3CF0] px-6 py-4 font-extrabold text-white">Place order securely</button>
         </form>
-        <aside className="card h-fit rounded-[24px] p-6">
-          <h2 className="text-2xl font-black">Confirmation preview</h2>
-          <p className="mt-4 text-sm leading-7 text-[#6B7280]">After successful payment, AduraMart creates an order record, notifies vendors, and enables tracking.</p>
-          <div className="mt-6 rounded-2xl bg-[#F3EEFF] p-5">
-            <p className="text-sm font-bold text-[#6B7280]">Total payable</p>
-            <p className="mt-2 text-4xl font-black text-[#6C3CF0]">{formatNaira(total)}</p>
-          </div>
-        </aside>
+        <CheckoutSummaryClient products={products} />
       </main>
     </>
   );

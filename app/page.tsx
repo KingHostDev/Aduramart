@@ -2,12 +2,11 @@ import { ArrowUpRight, BadgeCheck, MessageCircle, PackageCheck, ShieldCheck, Spa
 import { Footer } from "@/components/footer";
 import { Nav } from "@/components/nav";
 import { ButtonLink, ProductCard, SectionHeader, VendorCard } from "@/components/ui";
-import { categories, products, vendors } from "@/lib/data";
+import { categories } from "@/lib/data";
+import { getApprovedProducts, getApprovedVendors } from "@/lib/queries";
 
-const approvedProducts = products.filter((product) => product.status === "approved");
-const approvedVendors = vendors.filter((vendor) => vendor.status === "approved");
-
-export default function Home() {
+export default async function Home() {
+  const [approvedProducts, approvedVendors] = await Promise.all([getApprovedProducts(), getApprovedVendors()]);
   return (
     <>
       <Nav />

@@ -175,6 +175,71 @@ export async function getApprovedProducts(): Promise<Product[]> {
   return data.map(mapProduct);
 }
 
+
+export async function getApprovedVendorById(id: string): Promise<Vendor | null> {
+  const supabase = await createClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("vendors")
+    .select("*")
+    .eq("id", id)
+    .eq("status", "approved")
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return mapVendor(data);
+}
+
+export async function getApprovedProductsByVendorId(vendorId: string): Promise<Product[]> {
+  const supabase = await createClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, vendors!inner(store_name,status)")
+    .eq("vendor_id", vendorId)
+    .eq("status", "approved")
+    .eq("vendors.status", "approved")
+    .order("created_at", { ascending: false });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map(mapProduct);
+}
+
+export async function getApprovedProductById(id: string): Promise<Product | null> {
+  const supabase = await createClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, vendors!inner(store_name,status)")
+    .eq("id", id)
+    .eq("status", "approved")
+    .eq("vendors.status", "approved")
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return mapProduct(data);
+}
 export async function getPendingVendors(): Promise<Vendor[]> {
   return getVendorsByStatus("pending");
 }

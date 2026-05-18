@@ -1,15 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, Heart, MessageCircle, ShieldCheck, ShoppingBag, Truck } from "lucide-react";
+import { notFound } from "next/navigation";
+import { BadgeCheck, Heart, MessageCircle, ShieldCheck, Truck } from "lucide-react";
+import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Footer } from "@/components/footer";
 import { Nav } from "@/components/nav";
 import { ProductCard } from "@/components/ui";
-import { formatNaira, products } from "@/lib/data";
+import { formatNaira } from "@/lib/data";
+import { getApprovedProductById, getApprovedProducts } from "@/lib/queries";
 
 export default async function ProductDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = products.find((item) => item.id === id) ?? products[0];
-  const related = products.filter((item) => item.status === "approved" && item.id !== product.id).slice(0, 3);
+  const product = await getApprovedProductById(id);
+
+  if (!product) {
+    notFound();
+  }
+
+  const related = (await getApprovedProducts()).filter((item) => item.id !== product.id).slice(0, 3);
 
   return (
     <>
@@ -26,7 +34,7 @@ export default async function ProductDetails({ params }: { params: Promise<{ id:
             <h1 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">{product.name}</h1>
             <p className="mt-4 text-lg leading-8 text-[#6B7280]">{product.description}</p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-[#F3EEFF] px-4 py-2 text-sm font-extrabold text-[#6C3CF0]">{product.vendorName}</span>
+              <Link href={`/vendor/${product.vendorId}`} className="rounded-full bg-[#F3EEFF] px-4 py-2 text-sm font-extrabold text-[#6C3CF0] transition hover:bg-[#ECE6FF]">{product.vendorName}</Link>
               <span className="inline-flex items-center gap-2 rounded-full bg-[#EAFBF1] px-4 py-2 text-sm font-extrabold text-[#16803E]">
                 <BadgeCheck size={17} />
                 Verified
@@ -46,10 +54,7 @@ export default async function ProductDetails({ params }: { params: Promise<{ id:
               ))}
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/cart" className="inline-flex items-center gap-2 rounded-full bg-[#6C3CF0] px-6 py-3 font-extrabold text-white">
-                <ShoppingBag size={18} />
-                Add to cart
-              </Link>
+              <AddToCartButton productId={product.id} />
               <Link href="/messages" className="inline-flex items-center gap-2 rounded-full border border-[#dcd1ff] bg-white px-6 py-3 font-extrabold">
                 <MessageCircle size={18} />
                 Message vendor
@@ -62,11 +67,15 @@ export default async function ProductDetails({ params }: { params: Promise<{ id:
         </section>
         <section className="mt-14">
           <h2 className="mb-5 text-2xl font-black">Recommended for you</h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {related.map((item) => (
-              <ProductCard product={item} key={item.id} />
-            ))}
-          </div>
+          {related.length ? (
+            <div className="grid gap-6 md:grid-cols-3">
+              {related.map((item) => (
+                <ProductCard product={item} key={item.id} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-[#ece6ff] bg-white p-6 text-sm font-bold text-[#6B7280]">No other approved products yet.</div>
+          )}
         </section>
       </main>
       <Footer />
