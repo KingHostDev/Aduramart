@@ -1,8 +1,10 @@
 import { AlertTriangle, BadgeCheck, MessageSquareWarning, ShieldAlert } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { Nav } from "@/components/nav";
+import { requireAdminPage } from "@/lib/admin-auth";
 
-export default function AdminReportsPage() {
+export default async function AdminReportsPage() {
+  await requireAdminPage();
   return (
     <>
       <Nav />

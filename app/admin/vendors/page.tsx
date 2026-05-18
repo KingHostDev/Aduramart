@@ -5,8 +5,10 @@ import { AdminModerationPanel } from "@/components/admin-moderation-panel";
 import { Nav } from "@/components/nav";
 import { getApprovedVendors, getHiddenVendors, getPendingVendors, getRejectedVendors, getSuspendedVendors } from "@/lib/queries";
 import type { Vendor } from "@/lib/types";
+import { requireAdminPage } from "@/lib/admin-auth";
 
 export default async function AdminVendorsPage() {
+  await requireAdminPage();
   const [pendingVendors, approvedVendors, hiddenVendors, suspendedVendors, rejectedVendors] = await Promise.all([
     getPendingVendors(),
     getApprovedVendors(),

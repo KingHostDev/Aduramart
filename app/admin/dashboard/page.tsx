@@ -33,10 +33,12 @@ import {
   getRejectedVendors
 } from "@/lib/queries";
 import type { Product, Vendor } from "@/lib/types";
+import { requireAdminPage } from "@/lib/admin-auth";
 
 const orderStages = ["placed", "confirmed", "packed", "in-transit", "delivered"] as const;
 
 export default async function AdminDashboard() {
+  await requireAdminPage();
   const [approvedVendors, pendingVendors, rejectedVendors, approvedProducts, pendingProducts, rejectedProducts, orders] = await Promise.all([
     getApprovedVendors(),
     getPendingVendors(),

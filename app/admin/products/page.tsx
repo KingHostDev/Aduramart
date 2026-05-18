@@ -3,8 +3,10 @@ import { AdminModerationPanel } from "@/components/admin-moderation-panel";
 import { Nav } from "@/components/nav";
 import { ProductCard } from "@/components/ui";
 import { getApprovedProducts, getPendingProducts } from "@/lib/queries";
+import { requireAdminPage } from "@/lib/admin-auth";
 
 export default async function AdminProductsPage() {
+  await requireAdminPage();
   const [pendingProducts, approvedProducts] = await Promise.all([
     getPendingProducts(),
     getApprovedProducts()

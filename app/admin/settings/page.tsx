@@ -1,8 +1,10 @@
 import { Bell, ListChecks, ShieldCheck, Star, UserCog } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { Nav } from "@/components/nav";
+import { requireAdminPage } from "@/lib/admin-auth";
 
-export default function AdminSettingsPage() {
+export default async function AdminSettingsPage() {
+  await requireAdminPage();
   return (
     <>
       <Nav />

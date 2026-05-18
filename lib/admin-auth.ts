@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createAdminClient } from "./supabase/admin";
 import { createClient } from "./supabase/server";
 import type { AdminProfile } from "./types";
@@ -39,6 +40,16 @@ export async function getCurrentAdminProfile(): Promise<AdminProfile | null> {
 
 export async function requireAdmin() {
   return getCurrentAdminProfile();
+}
+
+export async function requireAdminPage() {
+  const profile = await getCurrentAdminProfile();
+
+  if (!profile) {
+    redirect("/admin?error=unauthorized");
+  }
+
+  return profile;
 }
 
 export async function requireSuperAdmin() {

@@ -4,8 +4,10 @@ import { Nav } from "@/components/nav";
 import { createAdminAccount } from "@/lib/actions";
 import { requireSuperAdmin } from "@/lib/admin-auth";
 import { getAdminProfiles } from "@/lib/queries";
+import { requireAdminPage } from "@/lib/admin-auth";
 
 export default async function AdminTeamPage({ searchParams }: { searchParams?: Promise<{ created?: string; error?: string }> }) {
+  await requireAdminPage();
   const [admins, currentSuperAdmin, params] = await Promise.all([
     getAdminProfiles(),
     requireSuperAdmin(),

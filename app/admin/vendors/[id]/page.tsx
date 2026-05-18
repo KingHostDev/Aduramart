@@ -5,8 +5,10 @@ import { ArrowLeft, BadgeCheck, FileText, IdCard, ImageIcon, UserRound } from "l
 import { AdminDecisionButtons } from "@/components/admin-decision-buttons";
 import { Nav } from "@/components/nav";
 import { getAdminVendorById } from "@/lib/queries";
+import { requireAdminPage } from "@/lib/admin-auth";
 
 export default async function AdminVendorReview({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdminPage();
   const { id } = await params;
   const vendor = await getAdminVendorById(id);
 

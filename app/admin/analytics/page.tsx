@@ -4,8 +4,10 @@ import { Nav } from "@/components/nav";
 import { StatCard } from "@/components/ui";
 import { formatNaira } from "@/lib/data";
 import { getAdminOrders, getApprovedProducts, getApprovedVendors, getPendingProducts, getPendingVendors } from "@/lib/queries";
+import { requireAdminPage } from "@/lib/admin-auth";
 
 export default async function AdminAnalyticsPage() {
+  await requireAdminPage();
   const [approvedVendors, pendingVendors, approvedProducts, pendingProducts, orders] = await Promise.all([
     getApprovedVendors(),
     getPendingVendors(),
