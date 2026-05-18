@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { DashboardLogout } from "./dashboard-logout";
 import type { LucideIcon } from "lucide-react";
 import { AlertTriangle, BarChart3, LayoutDashboard, PackageSearch, Shield, UserCog, UsersRound } from "lucide-react";
 
@@ -41,7 +42,7 @@ export function AdminSidebar() {
           );
         })}
       </nav>
+      <DashboardLogout />
     </aside>
   );
 }
-

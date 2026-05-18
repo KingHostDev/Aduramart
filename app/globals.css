@@ -41,7 +41,7 @@ textarea {
 }
 
 .container {
-  width: min(1180px, calc(100% - 32px));
+  width: min(1360px, calc(100% - 20px));
   margin-inline: auto;
 }
 

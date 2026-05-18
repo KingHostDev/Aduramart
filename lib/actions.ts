@@ -1,7 +1,117 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { requireSuperAdmin } from "./admin-auth";
+import { createAdminClient } from "./supabase/admin";
 import { createClient } from "./supabase/server";
+
+export async function loginAdmin(formData: FormData) {
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  if (!supabase || !adminClient) {
+    redirect("/admin?error=not-configured");
+  }
+
+  const email = String(formData.get("email") ?? "");
+  const password = String(formData.get("password") ?? "");
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error || !data.user) {
+    redirect("/admin?error=invalid-login");
+  }
+
+  const { data: profile } = await adminClient
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .in("role", ["super_admin", "admin"])
+    .single();
+
+  if (!profile) {
+    await supabase.auth.signOut();
+    redirect("/admin?error=unauthorized");
+  }
+
+  redirect("/admin/dashboard");
+}
+
+export async function loginVendor(formData: FormData) {
+  const supabase = await createClient();
+
+  if (!supabase) {
+    redirect("/vendor-login?error=not-configured");
+  }
+
+  const email = String(formData.get("email") ?? "");
+  const password = String(formData.get("password") ?? "");
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    redirect("/vendor-login?error=invalid-login");
+  }
+
+  redirect("/vendor/dashboard");
+}
+
+export async function logout() {
+  const supabase = await createClient();
+
+  if (supabase) {
+    await supabase.auth.signOut();
+  }
+
+  redirect("/");
+}
+
+export async function createAdminAccount(formData: FormData) {
+  const currentAdmin = await requireSuperAdmin();
+  const supabase = createAdminClient();
+
+  if (!currentAdmin || !supabase) {
+    redirect("/admin/team?error=super-admin-required");
+  }
+
+  const fullName = String(formData.get("fullName") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const role = String(formData.get("role") ?? "admin") === "super_admin" ? "super_admin" : "admin";
+
+  if (!fullName || !email || !password) {
+    redirect("/admin/team?error=incomplete");
+  }
+
+  const { data: userData, error: userError } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      full_name: fullName,
+      role
+    },
+    app_metadata: {
+      role
+    }
+  });
+
+  if (userError || !userData.user) {
+    redirect("/admin/team?error=create-failed");
+  }
+
+  const { error: profileError } = await supabase.from("profiles").upsert({
+    id: userData.user.id,
+    full_name: fullName,
+    role,
+    phone
+  });
+
+  if (profileError) {
+    redirect("/admin/team?error=profile-failed");
+  }
+
+  redirect("/admin/team?created=1");
+}
 
 export async function registerVendor(formData: FormData) {
   const supabase = await createClient();

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -7,6 +8,11 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
 
   if (!supabase) {
     return NextResponse.json({ error: "Supabase service role is not configured." }, { status: 500 });
+  }
+
+  const admin = await requireAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   }
 
   const { error } = await supabase

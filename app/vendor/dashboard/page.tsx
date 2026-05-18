@@ -1,4 +1,5 @@
 import { BarChart3, Box, CheckCircle2, Clock, MessageCircle, PackagePlus, Settings, Truck } from "lucide-react";
+import { DashboardLogout } from "@/components/dashboard-logout";
 import { Nav } from "@/components/nav";
 import { StatCard } from "@/components/ui";
 import { submitProductForReview } from "@/lib/actions";
@@ -24,6 +25,7 @@ export default function VendorDashboard() {
               {label as string}
             </a>
           ))}
+          <DashboardLogout />
         </aside>
         <section className="grid gap-6">
           <div className="soft-gradient rounded-[28px] p-6 md:p-8">
@@ -46,7 +48,7 @@ export default function VendorDashboard() {
                   <div key={product.id} className="grid gap-3 border-b border-[#ece6ff] bg-white p-4 last:border-b-0 md:grid-cols-[1fr_auto]">
                     <div>
                       <p className="font-black">{product.name}</p>
-                      <p className="text-sm text-[#6B7280]">{product.category} · {formatNaira(product.price)}</p>
+                      <p className="text-sm text-[#6B7280]">{product.category}  -  {formatNaira(product.price)}</p>
                     </div>
                     <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-extrabold ${product.status === "approved" ? "bg-[#EAFBF1] text-[#16803E]" : "bg-[#FFF1DF] text-[#B96312]"}`}>
                       {product.status === "approved" ? <CheckCircle2 size={15} /> : <Clock size={15} />}
