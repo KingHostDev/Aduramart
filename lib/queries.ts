@@ -317,6 +317,28 @@ export async function getVendorProducts(vendorId: string): Promise<Product[]> {
   return data.map(mapProduct);
 }
 
+
+export async function getVendorProductForUser(productId: string, userId: string): Promise<Product | null> {
+  const supabase = createAdminClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, vendors!inner(store_name,user_id)")
+    .eq("id", productId)
+    .eq("vendors.user_id", userId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return mapProduct(data);
+}
+
 export async function getVendorOrders(vendorId: string): Promise<Order[]> {
   const supabase = createAdminClient();
 

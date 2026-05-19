@@ -209,6 +209,168 @@ export async function updateVendorBio(formData: FormData) {
   redirect("/vendor/dashboard?profile=updated");
 }
 
+
+export async function removeVendorProduct(formData: FormData) {
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  if (!supabase || !adminClient) {
+    redirect("/vendor/dashboard?product=not-configured");
+  }
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) {
+    redirect("/vendor-login?error=login-required");
+  }
+
+  const productId = String(formData.get("productId") ?? "");
+
+  if (!productId) {
+    redirect("/vendor/dashboard?product=remove-failed");
+  }
+
+  const { data: product } = await adminClient
+    .from("products")
+    .select("id, vendor_id, status, vendors!inner(user_id)")
+    .eq("id", productId)
+    .eq("vendors.user_id", user.id)
+    .single();
+
+  if (!product) {
+    redirect("/vendor/dashboard?product=not-authorized");
+  }
+
+  const status = String(product.status);
+  const removableStatuses = ["pending", "rejected", "hidden", "suspended"];
+
+  if (removableStatuses.includes(status)) {
+    const { error } = await adminClient.from("products").delete().eq("id", productId);
+
+    if (error) {
+      redirect("/vendor/dashboard?product=remove-failed");
+    }
+
+    redirect("/vendor/dashboard?product=removed");
+  }
+
+  const { error } = await adminClient
+    .from("products")
+    .update({ status: "hidden", featured: false })
+    .eq("id", productId);
+
+  if (error) {
+    redirect("/vendor/dashboard?product=remove-failed");
+  }
+
+  redirect("/vendor/dashboard?product=hidden");
+}
+
+
+export async function markVendorProductOutOfSale(formData: FormData) {
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  if (!supabase || !adminClient) {
+    redirect("/vendor/dashboard?product=not-configured");
+  }
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) {
+    redirect("/vendor-login?error=login-required");
+  }
+
+  const productId = String(formData.get("productId") ?? "");
+
+  const { data: product } = await adminClient
+    .from("products")
+    .select("id, vendors!inner(user_id)")
+    .eq("id", productId)
+    .eq("vendors.user_id", user.id)
+    .single();
+
+  if (!product) {
+    redirect("/vendor/dashboard?product=not-authorized");
+  }
+
+  const { error } = await adminClient
+    .from("products")
+    .update({ status: "hidden", stock: 0, featured: false })
+    .eq("id", productId);
+
+  if (error) {
+    redirect("/vendor/dashboard?product=out-of-sale-failed");
+  }
+
+  redirect("/vendor/dashboard?product=out-of-sale");
+}
+
+export async function updateVendorProductForReview(formData: FormData) {
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  if (!supabase || !adminClient) {
+    redirect("/vendor/dashboard?product=not-configured");
+  }
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) {
+    redirect("/vendor-login?error=login-required");
+  }
+
+  const productId = String(formData.get("productId") ?? "");
+  const { data: product } = await adminClient
+    .from("products")
+    .select("id, vendor_id, image_url, vendors!inner(user_id,status)")
+    .eq("id", productId)
+    .eq("vendors.user_id", user.id)
+    .single();
+
+  if (!product) {
+    redirect("/vendor/dashboard?product=not-authorized");
+  }
+
+  const relatedVendors = product.vendors as { status?: string } | { status?: string }[] | null;
+  const vendorStatus = Array.isArray(relatedVendors) ? relatedVendors[0]?.status : relatedVendors?.status;
+
+  if (vendorStatus !== "approved") {
+    redirect("/vendor/dashboard?product=vendor-not-approved");
+  }
+
+  const imageUrl = await uploadFile("product-images", formData.get("image"), product.vendor_id || "vendor");
+  const existingImage = String(product.image_url ?? "");
+  const nextImage = imageUrl ?? existingImage;
+
+  if (!nextImage) {
+    redirect(`/vendor/products/${productId}/edit?error=image-required`);
+  }
+
+  const { error } = await adminClient
+    .from("products")
+    .update({
+      name: String(formData.get("name") ?? "").trim(),
+      category: String(formData.get("category") ?? ""),
+      price: Number(formData.get("price") ?? 0),
+      stock: Number(formData.get("stock") ?? 0),
+      description: String(formData.get("description") ?? "").trim(),
+      image_url: nextImage,
+      status: "pending",
+      featured: false
+    })
+    .eq("id", productId);
+
+  if (error) {
+    redirect(`/vendor/products/${productId}/edit?error=update-failed`);
+  }
+
+  redirect("/vendor/dashboard?product=resubmitted");
+}
+
 export async function submitProductForReview(formData: FormData) {
   const supabase = await createClient();
   if (!supabase) {

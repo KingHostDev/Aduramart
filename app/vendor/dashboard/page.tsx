@@ -5,7 +5,7 @@ import { BarChart3, Box, CheckCircle2, Clock, EyeOff, Heart, MessageCircle, Pack
 import { DashboardLogout } from "@/components/dashboard-logout";
 import { Nav } from "@/components/nav";
 import { StatCard } from "@/components/ui";
-import { submitProductForReview, updateVendorBio } from "@/lib/actions";
+import { markVendorProductOutOfSale, removeVendorProduct, submitProductForReview, updateVendorBio } from "@/lib/actions";
 import { categories, formatNaira } from "@/lib/data";
 import { getVendorByUserId, getVendorOrders, getVendorProducts } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/server";
@@ -165,10 +165,29 @@ function ProductManagement({ products }: { products: Product[] }) {
                 <p className="font-black">{product.name}</p>
                 <p className="text-sm text-[#6B7280]">{product.category} - {formatNaira(product.price)}</p>
               </div>
-              <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-extrabold ${product.status === "approved" ? "bg-[#EAFBF1] text-[#16803E]" : product.status === "pending" ? "bg-[#FFF1DF] text-[#B96312]" : "bg-[#fff1f1] text-[#EF4444]"}`}>
-                {product.status === "approved" ? <CheckCircle2 size={15} /> : <Clock size={15} />}
-                {product.status}
-              </span>
+              <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-extrabold ${product.status === "approved" ? "bg-[#EAFBF1] text-[#16803E]" : product.status === "pending" ? "bg-[#FFF1DF] text-[#B96312]" : "bg-[#fff1f1] text-[#EF4444]"}`}>
+                  {product.status === "approved" ? <CheckCircle2 size={15} /> : <Clock size={15} />}
+                  {product.status}
+                </span>
+                <Link href={`/vendor/products/${product.id}/edit`} className="rounded-full border border-[#dcd1ff] bg-white px-3 py-1 text-xs font-extrabold text-[#6C3CF0] transition hover:bg-[#F3EEFF]">
+                  Edit
+                </Link>
+                {product.status === "approved" ? (
+                  <form action={markVendorProductOutOfSale}>
+                    <input type="hidden" name="productId" value={product.id} />
+                    <button className="rounded-full border border-[#ffe1bd] bg-white px-3 py-1 text-xs font-extrabold text-[#B96312] transition hover:bg-[#FFF9F2]">
+                      Out of sale
+                    </button>
+                  </form>
+                ) : null}
+                <form action={removeVendorProduct}>
+                  <input type="hidden" name="productId" value={product.id} />
+                  <button className="rounded-full border border-[#ffd1d1] bg-white px-3 py-1 text-xs font-extrabold text-[#EF4444] transition hover:bg-[#fff1f1]">
+                    Remove
+                  </button>
+                </form>
+              </div>
             </div>
           ))
         ) : (
