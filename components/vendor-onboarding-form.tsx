@@ -179,7 +179,18 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
 
         <StepPanel active={step === 1}>
           <PanelTitle title="Identification" copy="Upload verification documents so the team can approve your store with confidence." />
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2 text-sm font-extrabold text-[#1F1F1F]">
+              ID Type
+              <select name="idType" data-step="1" data-required="true" className="rounded-2xl border border-[#ece6ff] bg-white px-4 py-3 font-semibold outline-none focus:border-[#6C3CF0]">
+                <option value="NIN">National Identity Number</option>
+                <option value="PASSPORT">International Passport</option>
+                <option value="DRIVERS_LICENSE">Driver's License</option>
+                <option value="VOTER_ID">Voter ID</option>
+              </select>
+            </label>
+            <Field stepIndex={1} name="idNumber" label="ID Number" placeholder="Enter ID number" />
+            <Field stepIndex={1} name="dateOfBirth" label="Date of Birth" placeholder="YYYY-MM-DD" type="date" />
             <FileField stepIndex={1} name="governmentId" label="Government ID Upload" />
             <FileField stepIndex={1} name="selfie" label="Selfie Verification" />
           </div>

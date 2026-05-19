@@ -24,7 +24,8 @@ export const vendors: Vendor[] = [
     logo: "SL",
     description: "Hand-finished worship garments, caps, and choir robes for white garment communities.",
     whatsapp: "+2348012345678",
-    sales: 1840
+    sales: 1840,
+    kycStatus: "not_configured"
   },
   {
     id: "zion-oils",
@@ -40,7 +41,8 @@ export const vendors: Vendor[] = [
     logo: "ZO",
     description: "Carefully packaged candles, olive oils, incense, and worship-ready altar materials.",
     whatsapp: "+2348098765432",
-    sales: 1320
+    sales: 1320,
+    kycStatus: "not_configured"
   },
   {
     id: "adura-books",
@@ -56,7 +58,8 @@ export const vendors: Vendor[] = [
     logo: "AB",
     description: "Prayer guides, hymnals, church stationery, and devotional resources.",
     whatsapp: "+2348076543210",
-    sales: 960
+    sales: 960,
+    kycStatus: "not_configured"
   },
   {
     id: "new-vendor-review",
@@ -72,7 +75,8 @@ export const vendors: Vendor[] = [
     logo: "AG",
     description: "Pending verification before public display.",
     whatsapp: "+2348000000000",
-    sales: 0
+    sales: 0,
+    kycStatus: "not_configured"
   }
 ];
 

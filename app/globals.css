@@ -76,3 +76,45 @@ textarea {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+.adura-hero {
+  background: #c8d2ee;
+}
+
+.adura-marquee {
+  animation: adura-marquee 24s linear infinite;
+  padding-left: 1rem;
+}
+
+.adura-loader {
+  animation: adura-loader 1.15s ease-in-out infinite;
+}
+
+@keyframes adura-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes adura-loader {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

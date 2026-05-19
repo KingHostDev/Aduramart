@@ -65,15 +65,21 @@ export default async function AdminVendorReview({ params }: { params: Promise<{ 
                   ["Phone", vendor.phone || "Not provided"],
                   ["WhatsApp", vendor.whatsapp || "Not provided"],
                   ["Location", vendor.location],
-                  ["Category", vendor.category]
+                  ["Category", vendor.category],
+                  ["ID type", vendor.idType || "Not provided"],
+                  ["ID number", vendor.idNumber || "Not provided"],
+                  ["Date of birth", vendor.dateOfBirth || "Not provided"]
                 ]}
               />
             </ReviewSection>
 
             <ReviewSection title="Identification" icon={<IdCard className="text-[#6C3CF0]" />}>
-              <div className="grid gap-4 md:grid-cols-2">
+              <InfoGrid items={[["KYC Status", vendor.kycStatus.replaceAll("_", " ")], ["KYC Provider", vendor.kycProvider || "Smile ID"], ["KYC Reference", vendor.kycReference || "Not generated yet"]]} />
+              <div className="mt-4">
+                <div className="grid gap-4 md:grid-cols-2">
                 <DocumentCard title="Government ID" href={vendor.governmentIdUrl} />
                 <DocumentCard title="Selfie Verification" href={vendor.selfieUrl} />
+                </div>
               </div>
             </ReviewSection>
 

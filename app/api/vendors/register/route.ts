@@ -66,6 +66,7 @@ export async function POST(request: Request) {
   const city = String(formData.get("city") ?? "").trim();
   const state = String(formData.get("state") ?? "").trim();
   const country = String(formData.get("country") ?? "Nigeria").trim();
+  const smileConfigured = Boolean(process.env.SMILE_ID_PARTNER_ID && process.env.SMILE_ID_API_KEY);
 
   const { error: vendorError } = await supabase.from("vendors").insert({
     user_id: userId,
@@ -83,6 +84,11 @@ export async function POST(request: Request) {
     description: String(formData.get("description") ?? "").trim(),
     government_id_url: governmentIdUrl,
     selfie_url: selfieUrl,
+    id_type: String(formData.get("idType") ?? "").trim(),
+    id_number: String(formData.get("idNumber") ?? "").trim(),
+    date_of_birth: String(formData.get("dateOfBirth") ?? "").trim(),
+    kyc_status: smileConfigured ? "pending" : "not_configured",
+    kyc_provider: "smile_id",
     banner_url: bannerUrl,
     logo_url: logoUrl,
     status: "pending",

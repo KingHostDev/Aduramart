@@ -1,5 +1,6 @@
 export type ApprovalStatus = "pending" | "approved" | "rejected" | "hidden" | "suspended";
 export type AdminRole = "super_admin" | "admin";
+export type KycStatus = "not_configured" | "pending" | "verified" | "failed" | "manual_review";
 
 export type AdminProfile = {
   id: string;
@@ -33,6 +34,13 @@ export type Vendor = {
   sales: number;
   governmentIdUrl?: string | null;
   selfieUrl?: string | null;
+  idType?: string | null;
+  idNumber?: string | null;
+  dateOfBirth?: string | null;
+  kycStatus: KycStatus;
+  kycProvider?: string | null;
+  kycReference?: string | null;
+  kycResult?: Record<string, unknown> | null;
 };
 
 export type Product = {

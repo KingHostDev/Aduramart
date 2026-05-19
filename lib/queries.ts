@@ -1,6 +1,6 @@
 import { createAdminClient } from "./supabase/admin";
 import { createClient } from "./supabase/server";
-import type { AdminProfile, Order, Product, Vendor } from "./types";
+import type { AdminProfile, KycStatus, Order, Product, Vendor } from "./types";
 
 type VendorRecord = {
   id: string;
@@ -25,6 +25,13 @@ type VendorRecord = {
   sales?: number | null;
   government_id_url?: string | null;
   selfie_url?: string | null;
+  id_type?: string | null;
+  id_number?: string | null;
+  date_of_birth?: string | null;
+  kyc_status?: KycStatus | null;
+  kyc_provider?: string | null;
+  kyc_reference?: string | null;
+  kyc_result?: Record<string, unknown> | null;
 };
 
 type ProductRecord = {
@@ -74,7 +81,14 @@ function mapVendor(vendor: VendorRecord): Vendor {
     whatsapp: vendor.whatsapp ?? "",
     sales: vendor.sales ?? 0,
     governmentIdUrl: vendor.government_id_url ?? null,
-    selfieUrl: vendor.selfie_url ?? null
+    selfieUrl: vendor.selfie_url ?? null,
+    idType: vendor.id_type ?? null,
+    idNumber: vendor.id_number ?? null,
+    dateOfBirth: vendor.date_of_birth ?? null,
+    kycStatus: vendor.kyc_status ?? "not_configured",
+    kycProvider: vendor.kyc_provider ?? null,
+    kycReference: vendor.kyc_reference ?? null,
+    kycResult: vendor.kyc_result ?? null
   };
 }
 
