@@ -44,3 +44,8 @@ where email = 'the1kinghost@gmail.com'
 on conflict (id) do update
 set role = 'super_admin',
     full_name = coalesce(public.profiles.full_name, 'AduraMart Super Admin');
+-- Store address fields for vendor onboarding and Google Places autocomplete.
+alter table public.vendors add column if not exists address text;
+alter table public.vendors add column if not exists city text;
+alter table public.vendors add column if not exists state text;
+alter table public.vendors add column if not exists country text not null default 'Nigeria';

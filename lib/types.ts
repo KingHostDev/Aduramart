@@ -17,6 +17,10 @@ export type Vendor = {
   phone?: string;
   category: string;
   location: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
   rating: number;
   verified: boolean;
   status: ApprovalStatus;

@@ -1,9 +1,12 @@
-"use client";
+﻿"use client";
 
 import type { FormEvent } from "react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, BadgeCheck, FileCheck, IdCard, Store } from "lucide-react";
+import { StoreAddressFields } from "@/components/store-address-fields";
+import { VendorOAuthButtons } from "@/components/vendor-oauth-buttons";
 import { categories } from "@/lib/data";
+import { createClient } from "@/lib/supabase/client";
 
 const steps = [
   { label: "Personal Information", icon: BadgeCheck },
@@ -16,8 +19,37 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [oauthUser, setOauthUser] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const progress = useMemo(() => ((step + 1) / steps.length) * 100, [step]);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    if (!supabase) {
+      return;
+    }
+
+    supabase.auth.getUser().then(({ data }) => {
+      const user = data.user;
+
+      if (!user || !formRef.current) {
+        return;
+      }
+
+      setOauthUser(true);
+      const ownerName = formRef.current.elements.namedItem("ownerName") as HTMLInputElement | null;
+      const email = formRef.current.elements.namedItem("email") as HTMLInputElement | null;
+
+      if (ownerName && !ownerName.value) {
+        ownerName.value = String(user.user_metadata?.full_name ?? user.user_metadata?.name ?? "");
+      }
+
+      if (email && !email.value) {
+        email.value = user.email ?? "";
+      }
+    });
+  }, []);
 
   const validateStep = (stepToValidate: number, shouldFocus = true) => {
     const fields = formRef.current?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
@@ -134,13 +166,14 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
       <div className="mt-8">
         <StepPanel active={step === 0}>
           <PanelTitle title="Personal information" copy="Start with the owner details AduraMart will verify and use for vendor communication." />
+          <VendorOAuthButtons />
+          {oauthUser ? <div className="mb-5 rounded-2xl bg-[#EAFBF1] p-4 text-sm font-extrabold text-[#16803E]">Google or Apple sign-in detected. Your name and email can be reused for vendor onboarding.</div> : null}
           <div className="grid gap-4 md:grid-cols-2">
             <Field stepIndex={0} name="ownerName" label="Full Name" placeholder="Your legal name" />
             <Field stepIndex={0} name="email" label="Email" placeholder="vendor@example.com" type="email" />
             <Field stepIndex={0} name="phone" label="Phone Number" placeholder="+234..." />
             <Field stepIndex={0} name="whatsapp" label="WhatsApp Contact" placeholder="+234..." />
-            <Field stepIndex={0} name="password" label="Password" placeholder="Create password" type="password" />
-            <Field stepIndex={0} name="location" label="Location" placeholder="Lagos, Nigeria" />
+            <Field stepIndex={0} name="password" label={oauthUser ? "Password (manual signup only)" : "Password"} placeholder="Create password" type="password" required={!oauthUser} />
           </div>
         </StepPanel>
 
@@ -153,7 +186,7 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
         </StepPanel>
 
         <StepPanel active={step === 2}>
-          <PanelTitle title="Store details" copy="Shape your public storefront before it enters admin review." />
+          <PanelTitle title="Store details" copy="Shape your public storefront, address, and visual identity before admin review." />
           <div className="grid gap-4 md:grid-cols-2">
             <Field stepIndex={2} name="storeName" label="Store Name" placeholder="Your spiritual store" />
             <label className="grid gap-2 text-sm font-extrabold text-[#1F1F1F]">
@@ -164,6 +197,7 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
                 ))}
               </select>
             </label>
+            <StoreAddressFields stepIndex={2} />
             <FileField stepIndex={2} name="banner" label="Store Banner" />
             <FileField stepIndex={2} name="logo" label="Store Logo" />
             <label className="grid gap-2 text-sm font-extrabold text-[#1F1F1F] md:col-span-2">
@@ -179,7 +213,7 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
             {[
               ["Vendor identity", "Personal information and contact details"],
               ["Verification files", "Government ID and selfie checks"],
-              ["Store profile", "Category, images, and public store description"]
+              ["Store profile", "Category, address, images, and public store description"]
             ].map(([title, copy]) => (
               <div key={title} className="rounded-2xl border border-[#ece6ff] bg-white p-5">
                 <BadgeCheck className="text-[#22C55E]" />
@@ -229,11 +263,11 @@ function PanelTitle({ title, copy }: { title: string; copy: string }) {
   );
 }
 
-function Field({ label, name, placeholder, stepIndex, type = "text" }: { label: string; name: string; placeholder: string; stepIndex: number; type?: string }) {
+function Field({ label, name, placeholder, stepIndex, type = "text", required = true }: { label: string; name: string; placeholder: string; stepIndex: number; type?: string; required?: boolean }) {
   return (
     <label className="grid gap-2 text-sm font-extrabold text-[#1F1F1F]">
       {label}
-      <input name={name} type={type} placeholder={placeholder} data-step={stepIndex} data-required="true" className="rounded-2xl border border-[#ece6ff] bg-white px-4 py-3 font-semibold outline-none focus:border-[#6C3CF0]" />
+      <input name={name} type={type} placeholder={placeholder} data-step={stepIndex} data-required={required ? "true" : "false"} className="rounded-2xl border border-[#ece6ff] bg-white px-4 py-3 font-semibold outline-none focus:border-[#6C3CF0]" />
     </label>
   );
 }

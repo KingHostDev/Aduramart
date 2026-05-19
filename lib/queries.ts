@@ -10,6 +10,10 @@ type VendorRecord = {
   phone?: string | null;
   category: string;
   location: string;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
   rating?: number | null;
   verified?: boolean | null;
   status: Vendor["status"];
@@ -54,6 +58,10 @@ function mapVendor(vendor: VendorRecord): Vendor {
     phone: vendor.phone ?? "",
     category: vendor.category,
     location: vendor.location,
+    address: vendor.address ?? "",
+    city: vendor.city ?? "",
+    state: vendor.state ?? "",
+    country: vendor.country ?? "",
     rating: vendor.rating ?? 0,
     verified: vendor.verified ?? false,
     status: vendor.status,
@@ -264,6 +272,75 @@ export async function getRejectedProducts(): Promise<Product[]> {
   return getProductsByStatus("rejected");
 }
 
+
+export async function getVendorByUserId(userId: string): Promise<Vendor | null> {
+  const supabase = createAdminClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("vendors")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return mapVendor(data);
+}
+
+export async function getVendorProducts(vendorId: string): Promise<Product[]> {
+  const supabase = createAdminClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, vendors(store_name)")
+    .eq("vendor_id", vendorId)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map(mapProduct);
+}
+
+export async function getVendorOrders(vendorId: string): Promise<Order[]> {
+  const supabase = createAdminClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("order_items")
+    .select("orders(id, customer_name, total, status, delivery_method, created_at)")
+    .eq("vendor_id", vendorId)
+    .order("id", { ascending: false });
+
+  if (error || !data) {
+    return [];
+  }
+
+  const orders = data
+    .map((row) => {
+      const order = Array.isArray(row.orders) ? row.orders[0] : row.orders;
+      return order ? mapOrder(order as OrderRecord) : null;
+    })
+    .filter((order): order is Order => Boolean(order));
+
+  return Array.from(new Map(orders.map((order) => [order.id, order])).values());
+}
 export async function getAdminOrders(): Promise<Order[]> {
   const supabase = createAdminClient();
 

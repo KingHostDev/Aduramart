@@ -1,46 +1,67 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   const supabase = createAdminClient();
+  const authClient = await createClient();
 
   if (!supabase) {
     return NextResponse.json({ error: "Supabase service role is not configured." }, { status: 500 });
   }
 
   const formData = await request.formData();
-  const email = String(formData.get("email") ?? "").trim();
+  const activeUser = authClient ? (await authClient.auth.getUser()).data.user : null;
+  const email = String(formData.get("email") ?? activeUser?.email ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const ownerName = String(formData.get("ownerName") ?? "").trim();
+  const ownerName = String(formData.get("ownerName") ?? activeUser?.user_metadata?.full_name ?? activeUser?.user_metadata?.name ?? "").trim();
 
-  if (!email || !password || !ownerName) {
+  if (!email || !ownerName || (!activeUser && !password)) {
     return NextResponse.json({ error: "Personal information is incomplete." }, { status: 400 });
   }
 
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: {
-      full_name: ownerName,
-      role: "vendor"
-    },
-    app_metadata: {
-      role: "vendor"
-    }
-  });
+  let userId = activeUser?.id ?? null;
 
-  if (authError && !authError.message.toLowerCase().includes("already")) {
-    return NextResponse.json({ error: authError.message }, { status: 400 });
+  if (!userId) {
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: ownerName,
+        role: "vendor"
+      },
+      app_metadata: {
+        role: "vendor"
+      }
+    });
+
+    if (authError && !authError.message.toLowerCase().includes("already")) {
+      return NextResponse.json({ error: authError.message }, { status: 400 });
+    }
+
+    userId = authData.user?.id ?? null;
   }
 
-  const userId = authData.user?.id ?? null;
+  if (userId) {
+    await supabase.from("profiles").upsert({
+      id: userId,
+      full_name: ownerName,
+      role: "vendor",
+      phone: String(formData.get("phone") ?? "").trim()
+    });
+  }
+
   const [governmentIdUrl, selfieUrl, bannerUrl, logoUrl] = await Promise.all([
     uploadFile(supabase, "vendor-government-ids", formData.get("governmentId"), email),
     uploadFile(supabase, "vendor-selfies", formData.get("selfie"), email),
     uploadFile(supabase, "vendor-banners", formData.get("banner"), email),
     uploadFile(supabase, "vendor-logos", formData.get("logo"), email)
   ]);
+
+  const city = String(formData.get("city") ?? "").trim();
+  const state = String(formData.get("state") ?? "").trim();
+  const country = String(formData.get("country") ?? "Nigeria").trim();
 
   const { error: vendorError } = await supabase.from("vendors").insert({
     user_id: userId,
@@ -49,7 +70,11 @@ export async function POST(request: Request) {
     email,
     phone: String(formData.get("phone") ?? "").trim(),
     category: String(formData.get("category") ?? "Worship Materials"),
-    location: String(formData.get("location") ?? "Nigeria").trim(),
+    location: [city, state, country].filter(Boolean).join(", ") || "Nigeria",
+    address: String(formData.get("address") ?? "").trim(),
+    city,
+    state,
+    country,
     whatsapp: String(formData.get("whatsapp") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
     government_id_url: governmentIdUrl,
