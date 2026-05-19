@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,6 +18,10 @@ export async function POST(request: Request) {
 
   if (!email || !ownerName || (!activeUser && !password)) {
     return NextResponse.json({ error: "Personal information is incomplete." }, { status: 400 });
+  }
+
+  if (formData.get("termsAccepted") !== "on") {
+    return NextResponse.json({ error: "Please accept AduraMart vendor terms before submitting." }, { status: 400 });
   }
 
   let userId = activeUser?.id ?? null;

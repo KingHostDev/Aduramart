@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, BadgeCheck, Check, Plus, Star } from "lucide-react";
+import { ArrowRight, BadgeCheck, Check, Heart, Plus } from "lucide-react";
 import { formatNaira } from "@/lib/data";
 import type { Product, Vendor } from "@/lib/types";
 
@@ -84,8 +84,8 @@ export function VendorCard({ vendor }: { vendor: Vendor }) {
         <p className="mt-4 line-clamp-3 text-sm leading-6 text-[#6B7280]">{vendor.description}</p>
         <div className="mt-5 flex items-center justify-between text-sm font-extrabold">
           <span className="inline-flex items-center gap-1 text-[#FFB86B]">
-            <Star size={16} fill="currentColor" />
-            {vendor.rating}
+            <Heart size={16} fill="currentColor" />
+            {vendor.likes.toLocaleString()} likes
           </span>
           <span className="inline-flex items-center gap-2 text-[#22C55E]">
             <Check size={16} />

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BadgeCheck, MessageCircle, Phone } from "lucide-react";
 import { Footer } from "@/components/footer";
+import { VendorLikeButton } from "@/components/vendor-like-button";
 import { Nav } from "@/components/nav";
 import { ProductCard, StatCard } from "@/components/ui";
 import { getApprovedProductsByVendorId, getApprovedVendorById } from "@/lib/queries";
@@ -47,6 +48,7 @@ export default async function VendorStorefront({ params }: { params: Promise<{ i
                 <p className="mt-3 max-w-2xl leading-8 text-[#6B7280]">{vendor.description}</p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
+                <VendorLikeButton vendorId={vendor.id} initialLikes={vendor.likes} />
                 <Link href={whatsappHref} className="inline-flex items-center gap-2 rounded-full bg-[#22C55E] px-5 py-3 font-extrabold text-white">
                   <Phone size={18} />
                   WhatsApp
@@ -60,7 +62,7 @@ export default async function VendorStorefront({ params }: { params: Promise<{ i
           </div>
         </section>
         <section className="mt-8 grid gap-4 md:grid-cols-3">
-          <StatCard label="Store rating" value={`${vendor.rating}/5`} />
+          <StatCard label="Profile likes" value={vendor.likes.toLocaleString()} />
           <StatCard label="Completed sales" value={vendor.sales.toLocaleString()} tone="gold" />
           <StatCard label="Public status" value="Verified" tone="green" />
         </section>

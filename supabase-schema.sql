@@ -27,10 +27,19 @@ create table public.vendors (
   status approval_status not null default 'pending',
   verified boolean not null default false,
   rating numeric default 0,
+  likes_count integer not null default 0,
   sales integer not null default 0,
   created_at timestamptz not null default now()
 );
 
+
+create table public.vendor_likes (
+  id uuid primary key default gen_random_uuid(),
+  vendor_id uuid not null references public.vendors(id) on delete cascade,
+  visitor_key text not null,
+  created_at timestamptz not null default now(),
+  unique (vendor_id, visitor_key)
+);
 create table public.products (
   id uuid primary key default gen_random_uuid(),
   vendor_id uuid not null references public.vendors(id) on delete cascade,
@@ -87,6 +96,7 @@ create table public.notifications (
 );
 
 alter table public.vendors enable row level security;
+alter table public.vendor_likes enable row level security;
 alter table public.products enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
@@ -94,6 +104,7 @@ alter table public.messages enable row level security;
 alter table public.notifications enable row level security;
 
 create policy "Approved vendors are public" on public.vendors for select using (status = 'approved' or auth.uid() is not null);
+create policy "Vendor likes are readable" on public.vendor_likes for select using (true);
 create policy "Approved products are public" on public.products for select using (status = 'approved' or auth.uid() is not null);
 create policy "Vendors can submit applications" on public.vendors for insert with check (status = 'pending');
 create policy "Products enter review queue" on public.products for insert with check (

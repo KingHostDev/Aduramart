@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { FormEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -222,6 +222,12 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
               </div>
             ))}
           </div>
+          <label className="mt-6 flex gap-3 rounded-2xl border border-[#dcd1ff] bg-white p-5 text-sm font-bold leading-7 text-[#454151]">
+            <input name="termsAccepted" type="checkbox" data-step="3" data-required="true" className="mt-1 size-5 shrink-0 accent-[#6C3CF0]" />
+            <span>
+              I have read and agree to AduraMart vendor terms, company rights, marketplace review rules, and product posting guidelines. I understand that vendors must be approved before public display and that submitted listings may be approved or rejected by AduraMart.
+            </span>
+          </label>
         </StepPanel>
       </div>
 

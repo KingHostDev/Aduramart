@@ -1,0 +1,9 @@
+﻿<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#F3EEFF"/>
+  <rect x="104" y="104" width="992" height="692" rx="48" fill="#FFF9F2" stroke="#DCD1FF" stroke-width="4"/>
+  <circle cx="600" cy="390" r="96" fill="#ECE6FF"/>
+  <path d="M538 410C562 374 580 356 600 356C620 356 638 374 662 410L720 498H480L538 410Z" fill="#6C3CF0" fill-opacity="0.82"/>
+  <path d="M512 542H688" stroke="#6C3CF0" stroke-width="22" stroke-linecap="round"/>
+  <text x="600" y="650" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="800" fill="#1F1F1F">AduraMart product image</text>
+  <text x="600" y="708" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#6B7280">Awaiting vendor upload</text>
+</svg>

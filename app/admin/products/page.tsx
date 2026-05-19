@@ -29,7 +29,8 @@ export default async function AdminProductsPage() {
             type="products"
             rows={pendingProducts.map((product) => ({
               id: product.id,
-              cells: [product.name, product.vendorName, product.category]
+              cells: [product.name, product.vendorName, product.category],
+              detailsHref: `/admin/products/${product.id}`
             }))}
           />
 

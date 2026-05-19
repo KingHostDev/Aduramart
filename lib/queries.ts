@@ -15,6 +15,7 @@ type VendorRecord = {
   state?: string | null;
   country?: string | null;
   rating?: number | null;
+  likes_count?: number | null;
   verified?: boolean | null;
   status: Vendor["status"];
   banner_url?: string | null;
@@ -63,6 +64,7 @@ function mapVendor(vendor: VendorRecord): Vendor {
     state: vendor.state ?? "",
     country: vendor.country ?? "",
     rating: vendor.rating ?? 0,
+    likes: vendor.likes_count ?? 0,
     verified: vendor.verified ?? false,
     status: vendor.status,
     banner: vendor.banner_url ?? "https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?auto=format&fit=crop&w=1600&q=80",
@@ -84,7 +86,7 @@ function mapProduct(product: ProductRecord): Product {
     vendorName: product.vendors?.store_name ?? "Verified vendor",
     category: product.category,
     price: product.price,
-    image: product.image_url ?? "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1200&q=80",
+    image: product.image_url ?? "/product-placeholder.svg",
     status: product.status,
     featured: product.featured ?? false,
     description: product.description ?? "",
@@ -360,6 +362,26 @@ export async function getAdminOrders(): Promise<Order[]> {
   return data.map(mapOrder);
 }
 
+
+export async function getAdminProductById(id: string): Promise<Product | null> {
+  const supabase = createAdminClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, vendors(store_name)")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return mapProduct(data);
+}
 export async function getAdminVendorById(id: string): Promise<Vendor | null> {
   const supabase = createAdminClient();
 

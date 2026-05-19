@@ -22,6 +22,7 @@ export type Vendor = {
   state?: string;
   country?: string;
   rating: number;
+  likes: number;
   verified: boolean;
   status: ApprovalStatus;
   banner: string;

@@ -163,6 +163,52 @@ export async function registerVendor(formData: FormData) {
   redirect("/vendor/onboarding?submitted=review");
 }
 
+
+export async function updateVendorBio(formData: FormData) {
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  if (!supabase || !adminClient) {
+    redirect("/vendor/dashboard?profile=not-configured");
+  }
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) {
+    redirect("/vendor-login?error=login-required");
+  }
+
+  const vendorId = String(formData.get("vendorId") ?? "");
+  const description = String(formData.get("description") ?? "").trim();
+
+  if (!vendorId || description.length < 20) {
+    redirect("/vendor/dashboard?profile=bio-too-short");
+  }
+
+  const { data: vendor } = await adminClient
+    .from("vendors")
+    .select("id, user_id")
+    .eq("id", vendorId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!vendor) {
+    redirect("/vendor/dashboard?profile=not-authorized");
+  }
+
+  const { error } = await adminClient
+    .from("vendors")
+    .update({ description })
+    .eq("id", vendorId);
+
+  if (error) {
+    redirect("/vendor/dashboard?profile=update-failed");
+  }
+
+  redirect("/vendor/dashboard?profile=updated");
+}
+
 export async function submitProductForReview(formData: FormData) {
   const supabase = await createClient();
   if (!supabase) {
@@ -177,6 +223,10 @@ export async function submitProductForReview(formData: FormData) {
   }
 
   const imageUrl = await uploadFile("product-images", formData.get("image"), vendorId || "vendor");
+
+  if (!imageUrl) {
+    redirect("/vendor/dashboard?product=image-required");
+  }
 
   const { error } = await supabase.from("products").insert({
     vendor_id: vendorId,

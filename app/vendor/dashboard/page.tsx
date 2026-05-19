@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarChart3, Box, CheckCircle2, Clock, EyeOff, MessageCircle, PackagePlus, Settings, ShieldAlert, Store, Truck } from "lucide-react";
+import { BarChart3, Box, CheckCircle2, Clock, EyeOff, Heart, MessageCircle, PackagePlus, Settings, ShieldAlert, Store, Truck } from "lucide-react";
 import { DashboardLogout } from "@/components/dashboard-logout";
 import { Nav } from "@/components/nav";
 import { StatCard } from "@/components/ui";
-import { submitProductForReview } from "@/lib/actions";
+import { submitProductForReview, updateVendorBio } from "@/lib/actions";
 import { categories, formatNaira } from "@/lib/data";
 import { getVendorByUserId, getVendorOrders, getVendorProducts } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/server";
@@ -50,16 +50,20 @@ export default async function VendorDashboard() {
           <VendorHero vendor={vendor} />
           <VendorStatusNotice vendor={vendor} />
 
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             <StatCard label="Revenue" value={formatNaira(revenue)} />
             <StatCard label="Orders" value={String(vendorOrders.length)} tone="gold" />
             <StatCard label="Approved products" value={String(approvedProducts)} tone="green" />
             <StatCard label="Pending review" value={String(pendingProducts)} tone="dark" />
+            <StatCard label="Profile likes" value={vendor.likes.toLocaleString()} tone="purple" />
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
             <ProductManagement products={vendorProducts} />
-            <SubmitListingForm vendor={vendor} canSubmitProducts={canSubmitProducts} />
+            <div className="grid gap-6">
+              <StoreBioForm vendor={vendor} />
+              <SubmitListingForm vendor={vendor} canSubmitProducts={canSubmitProducts} />
+            </div>
           </div>
 
           <div className="card rounded-[22px] p-6">
@@ -177,6 +181,23 @@ function ProductManagement({ products }: { products: Product[] }) {
   );
 }
 
+
+function StoreBioForm({ vendor }: { vendor: Vendor }) {
+  return (
+    <form action={updateVendorBio} className="card rounded-[22px] p-6">
+      <div className="flex items-center gap-3">
+        <Heart className="text-[#6C3CF0]" />
+        <h2 className="text-2xl font-black">Store bio</h2>
+      </div>
+      <p className="mt-2 text-sm font-bold leading-7 text-[#6B7280]">Update the public story buyers see on your vendor profile anytime.</p>
+      <input type="hidden" name="vendorId" value={vendor.id} />
+      <textarea name="description" rows={5} minLength={20} required defaultValue={vendor.description} className="mt-5 w-full rounded-2xl border border-[#ece6ff] px-4 py-3 text-sm font-semibold leading-7 outline-none focus:border-[#6C3CF0]" />
+      <button className="mt-4 rounded-full bg-[#6C3CF0] px-5 py-3 font-extrabold text-white shadow-lg shadow-purple-500/20">
+        Save bio
+      </button>
+    </form>
+  );
+}
 function SubmitListingForm({ vendor, canSubmitProducts }: { vendor: Vendor; canSubmitProducts: boolean }) {
   return (
     <form action={submitProductForReview} className="card rounded-[22px] p-6">
@@ -194,7 +215,7 @@ function SubmitListingForm({ vendor, canSubmitProducts }: { vendor: Vendor; canS
         </select>
         <input name="price" type="number" placeholder="Price in naira" disabled={!canSubmitProducts} required className="rounded-2xl border border-[#ece6ff] px-4 py-3 outline-none focus:border-[#6C3CF0] disabled:bg-[#F9FAFB]" />
         <input name="stock" type="number" placeholder="Stock quantity" disabled={!canSubmitProducts} required className="rounded-2xl border border-[#ece6ff] px-4 py-3 outline-none focus:border-[#6C3CF0] disabled:bg-[#F9FAFB]" />
-        <input name="image" type="file" disabled={!canSubmitProducts} className="rounded-2xl border border-dashed border-[#cfc2ff] bg-[#F3EEFF] px-4 py-3 text-sm font-semibold disabled:bg-[#F9FAFB]" />
+        <input name="image" type="file" accept="image/*" disabled={!canSubmitProducts} required className="rounded-2xl border border-dashed border-[#cfc2ff] bg-[#F3EEFF] px-4 py-3 text-sm font-semibold disabled:bg-[#F9FAFB]" />
         <textarea name="description" rows={4} placeholder="Product description" disabled={!canSubmitProducts} required className="rounded-2xl border border-[#ece6ff] px-4 py-3 outline-none focus:border-[#6C3CF0] disabled:bg-[#F9FAFB]" />
       </div>
       <button disabled={!canSubmitProducts} className="mt-4 w-full rounded-full bg-[#6C3CF0] px-5 py-3 font-extrabold text-white disabled:bg-[#d8cef8]">
