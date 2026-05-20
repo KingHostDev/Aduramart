@@ -5,6 +5,7 @@ import { BadgeCheck, Heart, MessageCircle, ShieldCheck, Truck } from "lucide-rea
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Footer } from "@/components/footer";
 import { Nav } from "@/components/nav";
+import { ProductGallery } from "@/components/product-gallery";
 import { ProductCard } from "@/components/ui";
 import { formatNaira } from "@/lib/data";
 import { getApprovedProductById, getApprovedProducts } from "@/lib/queries";
@@ -24,11 +25,8 @@ export default async function ProductDetails({ params }: { params: Promise<{ id:
       <Nav />
       <main className="container py-10">
         <section className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
-          <div className="card overflow-hidden rounded-[24px]">
-            <div className="relative aspect-[4/3]">
-              <Image src={product.image} alt={product.name} fill className="object-cover" priority />
-            </div>
-          </div>
+          <ProductGallery images={product.images} name={product.name} />
+
           <div className="card rounded-[24px] p-6 md:p-8">
             <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-[#6C3CF0]">{product.category}</p>
             <h1 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">{product.name}</h1>

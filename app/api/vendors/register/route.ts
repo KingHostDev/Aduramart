@@ -68,7 +68,7 @@ export async function POST(request: Request) {
   const country = String(formData.get("country") ?? "Nigeria").trim();
   const smileConfigured = Boolean(process.env.SMILE_ID_PARTNER_ID && process.env.SMILE_ID_API_KEY);
 
-  const { error: vendorError } = await supabase.from("vendors").insert({
+  const baseVendorPayload = {
     user_id: userId,
     owner_name: ownerName,
     store_name: String(formData.get("storeName") ?? "").trim(),
@@ -84,19 +84,36 @@ export async function POST(request: Request) {
     description: String(formData.get("description") ?? "").trim(),
     government_id_url: governmentIdUrl,
     selfie_url: selfieUrl,
-    id_type: String(formData.get("idType") ?? "").trim(),
-    id_number: String(formData.get("idNumber") ?? "").trim(),
-    date_of_birth: String(formData.get("dateOfBirth") ?? "").trim(),
-    kyc_status: smileConfigured ? "pending" : "not_configured",
-    kyc_provider: "smile_id",
     banner_url: bannerUrl,
     logo_url: logoUrl,
     status: "pending",
     verified: false
-  });
+  };
+
+  const kycVendorPayload = {
+    ...baseVendorPayload,
+    id_type: String(formData.get("idType") ?? "").trim(),
+    id_number: String(formData.get("idNumber") ?? "").trim(),
+    date_of_birth: String(formData.get("dateOfBirth") ?? "").trim(),
+    kyc_status: smileConfigured ? "pending" : "not_configured",
+    kyc_provider: "smile_id"
+  };
+
+  const { error: vendorError } = await supabase.from("vendors").insert(kycVendorPayload);
 
   if (vendorError) {
-    return NextResponse.json({ error: vendorError.message }, { status: 400 });
+    const message = vendorError.message.toLowerCase();
+    const missingKycColumns = ["id_type", "id_number", "date_of_birth", "kyc_status", "kyc_provider"].some((column) => message.includes(column));
+
+    if (!missingKycColumns) {
+      return NextResponse.json({ error: vendorError.message }, { status: 400 });
+    }
+
+    const { error: fallbackError } = await supabase.from("vendors").insert(baseVendorPayload);
+
+    if (fallbackError) {
+      return NextResponse.json({ error: fallbackError.message }, { status: 400 });
+    }
   }
 
   return NextResponse.json({ ok: true });

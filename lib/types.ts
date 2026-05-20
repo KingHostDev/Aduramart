@@ -51,6 +51,7 @@ export type Product = {
   category: string;
   price: number;
   image: string;
+  images: string[];
   status: ApprovalStatus;
   featured: boolean;
   description: string;

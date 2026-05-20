@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
@@ -42,7 +42,7 @@ function getPart(components: GoogleAddressComponent[] | undefined, type: string)
   return components?.find((component) => component.types.includes(type))?.long_name ?? "";
 }
 
-export function StoreAddressFields({ stepIndex }: { stepIndex: number }) {
+export function StoreAddressFields({ stepIndex, theme = "light" }: { stepIndex: number; theme?: "light" | "dark" }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [parts, setParts] = useState<AddressParts>({ address: "", city: "", state: "", country: "Nigeria" });
   const googleKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -91,11 +91,15 @@ export function StoreAddressFields({ stepIndex }: { stepIndex: number }) {
     document.head.appendChild(script);
   }, [googleKey]);
 
+  const labelClass = theme === "dark" ? "grid gap-2 text-xs font-bold text-white/76 md:col-span-2" : "grid gap-2 text-sm font-extrabold text-[#1F1F1F] md:col-span-2";
+  const shellClass = theme === "dark" ? "flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.07] px-4 py-3 text-white" : "flex items-center gap-3 rounded-2xl border border-[#ece6ff] bg-white px-4 py-3";
+  const hintClass = theme === "dark" ? "text-xs font-semibold leading-5 text-white/42" : "text-xs font-bold leading-5 text-[#6B7280]";
+
   return (
     <div className="grid gap-4 md:col-span-2 md:grid-cols-2">
-      <label className="grid gap-2 text-sm font-extrabold text-[#1F1F1F] md:col-span-2">
+      <label className={labelClass}>
         Store Address
-        <span className="flex items-center gap-3 rounded-2xl border border-[#ece6ff] bg-white px-4 py-3">
+        <span className={shellClass}>
           <MapPin size={18} className="text-[#6C3CF0]" />
           <input
             ref={inputRef}
@@ -105,23 +109,26 @@ export function StoreAddressFields({ stepIndex }: { stepIndex: number }) {
             placeholder={googleKey ? "Start typing your store address" : "Street address"}
             data-step={stepIndex}
             data-required="true"
-            className="w-full bg-transparent font-semibold outline-none"
+            className="w-full bg-transparent font-semibold outline-none placeholder:text-current/45"
           />
         </span>
-        <span className="text-xs font-bold leading-5 text-[#6B7280]">
+        <span className={hintClass}>
           {googleKey ? "Google address autocomplete is enabled." : "Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to enable Google address autocomplete."}
         </span>
       </label>
-      <AddressInput stepIndex={stepIndex} name="city" label="City" value={parts.city} onChange={(city) => setParts((value) => ({ ...value, city }))} />
-      <AddressInput stepIndex={stepIndex} name="state" label="State" value={parts.state} onChange={(state) => setParts((value) => ({ ...value, state }))} />
-      <AddressInput stepIndex={stepIndex} name="country" label="Country" value={parts.country} onChange={(country) => setParts((value) => ({ ...value, country }))} />
+      <AddressInput stepIndex={stepIndex} name="city" label="City" value={parts.city} theme={theme} onChange={(city) => setParts((value) => ({ ...value, city }))} />
+      <AddressInput stepIndex={stepIndex} name="state" label="State" value={parts.state} theme={theme} onChange={(state) => setParts((value) => ({ ...value, state }))} />
+      <AddressInput stepIndex={stepIndex} name="country" label="Country" value={parts.country} theme={theme} onChange={(country) => setParts((value) => ({ ...value, country }))} />
     </div>
   );
 }
 
-function AddressInput({ label, name, value, stepIndex, onChange }: { label: string; name: string; value: string; stepIndex: number; onChange: (value: string) => void }) {
+function AddressInput({ label, name, value, stepIndex, theme, onChange }: { label: string; name: string; value: string; stepIndex: number; theme: "light" | "dark"; onChange: (value: string) => void }) {
+  const labelClass = theme === "dark" ? "grid gap-2 text-xs font-bold text-white/76" : "grid gap-2 text-sm font-extrabold text-[#1F1F1F]";
+  const inputClass = theme === "dark" ? "rounded-xl border border-white/10 bg-white/[0.07] px-4 py-3 font-semibold text-white outline-none placeholder:text-white/35 focus:border-white/32" : "rounded-2xl border border-[#ece6ff] bg-white px-4 py-3 font-semibold outline-none focus:border-[#6C3CF0]";
+
   return (
-    <label className="grid gap-2 text-sm font-extrabold text-[#1F1F1F]">
+    <label className={labelClass}>
       {label}
       <input
         name={name}
@@ -130,7 +137,7 @@ function AddressInput({ label, name, value, stepIndex, onChange }: { label: stri
         placeholder={label}
         data-step={stepIndex}
         data-required="true"
-        className="rounded-2xl border border-[#ece6ff] bg-white px-4 py-3 font-semibold outline-none focus:border-[#6C3CF0]"
+        className={inputClass}
       />
     </label>
   );

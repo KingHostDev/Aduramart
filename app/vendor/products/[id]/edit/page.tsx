@@ -54,6 +54,7 @@ export default async function EditVendorProductPage({ params, searchParams }: { 
                 <p className="font-black">{product.name}</p>
                 <p className="mt-1 text-sm font-bold text-[#6B7280]">Current price: {formatNaira(product.price)}</p>
                 <p className="mt-1 text-sm font-bold capitalize text-[#6C3CF0]">Current status: {product.status}</p>
+                {product.images.length > 1 ? <p className="mt-1 text-sm font-bold text-[#6B7280]">{product.images.length} images in current gallery</p> : null}
               </div>
             </div>
           </div>
@@ -84,8 +85,9 @@ export default async function EditVendorProductPage({ params, searchParams }: { 
                 <input name="stock" type="number" min={0} required defaultValue={product.stock} className="rounded-2xl border border-[#ece6ff] px-4 py-3 outline-none focus:border-[#6C3CF0]" />
               </label>
               <label className="grid gap-2 text-sm font-extrabold">
-                Replace image
-                <input name="image" type="file" accept="image/*" className="rounded-2xl border border-dashed border-[#cfc2ff] bg-[#F3EEFF] px-4 py-3 text-sm font-semibold" />
+                Replace gallery
+                <input name="images" type="file" accept="image/*" multiple className="rounded-2xl border border-dashed border-[#cfc2ff] bg-[#F3EEFF] px-4 py-3 text-sm font-semibold" />
+                <span className="text-xs font-bold text-[#6B7280]">Optional. Upload 1 to 5 new images to replace the current gallery.</span>
               </label>
               <label className="grid gap-2 text-sm font-extrabold md:col-span-2">
                 Product description

@@ -234,7 +234,8 @@ function SubmitListingForm({ vendor, canSubmitProducts }: { vendor: Vendor; canS
         </select>
         <input name="price" type="number" placeholder="Price in naira" disabled={!canSubmitProducts} required className="rounded-2xl border border-[#ece6ff] px-4 py-3 outline-none focus:border-[#6C3CF0] disabled:bg-[#F9FAFB]" />
         <input name="stock" type="number" placeholder="Stock quantity" disabled={!canSubmitProducts} required className="rounded-2xl border border-[#ece6ff] px-4 py-3 outline-none focus:border-[#6C3CF0] disabled:bg-[#F9FAFB]" />
-        <input name="image" type="file" accept="image/*" disabled={!canSubmitProducts} required className="rounded-2xl border border-dashed border-[#cfc2ff] bg-[#F3EEFF] px-4 py-3 text-sm font-semibold disabled:bg-[#F9FAFB]" />
+        <input name="images" type="file" accept="image/*" multiple disabled={!canSubmitProducts} required className="rounded-2xl border border-dashed border-[#cfc2ff] bg-[#F3EEFF] px-4 py-3 text-sm font-semibold disabled:bg-[#F9FAFB]" />
+        <p className="-mt-2 text-xs font-bold text-[#6B7280]">Upload 1 to 5 product photos.</p>
         <textarea name="description" rows={4} placeholder="Product description" disabled={!canSubmitProducts} required className="rounded-2xl border border-[#ece6ff] px-4 py-3 outline-none focus:border-[#6C3CF0] disabled:bg-[#F9FAFB]" />
       </div>
       <button disabled={!canSubmitProducts} className="mt-4 w-full rounded-full bg-[#6C3CF0] px-5 py-3 font-extrabold text-white disabled:bg-[#d8cef8]">

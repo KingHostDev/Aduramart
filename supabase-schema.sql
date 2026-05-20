@@ -56,6 +56,7 @@ create table public.products (
   description text,
   stock integer not null default 0,
   image_url text,
+  image_urls text[],
   status approval_status not null default 'pending',
   rejection_reason text,
   featured boolean not null default false,

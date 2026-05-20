@@ -42,6 +42,7 @@ type ProductRecord = {
   category: string;
   price: number;
   image_url?: string | null;
+  image_urls?: string[] | null;
   status: Product["status"];
   featured?: boolean | null;
   description?: string | null;
@@ -93,6 +94,13 @@ function mapVendor(vendor: VendorRecord): Vendor {
 }
 
 function mapProduct(product: ProductRecord): Product {
+  const productImages = [
+    ...(product.image_urls ?? []),
+    product.image_url
+  ].filter((image): image is string => Boolean(image));
+  const images = Array.from(new Set(productImages));
+  const image = images[0] ?? "/product-placeholder.svg";
+
   return {
     id: product.id,
     name: product.name,
@@ -100,14 +108,14 @@ function mapProduct(product: ProductRecord): Product {
     vendorName: product.vendors?.store_name ?? "Verified vendor",
     category: product.category,
     price: product.price,
-    image: product.image_url ?? "/product-placeholder.svg",
+    image,
+    images: images.length ? images : [image],
     status: product.status,
     featured: product.featured ?? false,
     description: product.description ?? "",
     stock: product.stock ?? 0
   };
 }
-
 function mapOrder(order: OrderRecord): Order {
   return {
     id: order.id,

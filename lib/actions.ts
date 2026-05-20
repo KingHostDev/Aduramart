@@ -326,7 +326,7 @@ export async function updateVendorProductForReview(formData: FormData) {
   const productId = String(formData.get("productId") ?? "");
   const { data: product } = await adminClient
     .from("products")
-    .select("id, vendor_id, image_url, vendors!inner(user_id,status)")
+    .select("id, vendor_id, image_url, image_urls, vendors!inner(user_id,status)")
     .eq("id", productId)
     .eq("vendors.user_id", user.id)
     .single();
@@ -342,30 +342,56 @@ export async function updateVendorProductForReview(formData: FormData) {
     redirect("/vendor/dashboard?product=vendor-not-approved");
   }
 
-  const imageUrl = await uploadFile("product-images", formData.get("image"), product.vendor_id || "vendor");
-  const existingImage = String(product.image_url ?? "");
-  const nextImage = imageUrl ?? existingImage;
+  const submittedFiles = formData.getAll("images");
+
+  if (submittedFiles.filter((value) => value instanceof File && value.size > 0).length > 5) {
+    redirect(`/vendor/products/${productId}/edit?error=max-5-images`);
+  }
+
+  const uploadedImages = await uploadFiles("product-images", submittedFiles, product.vendor_id || "vendor");
+  const existingImages = [
+    ...(((product as { image_urls?: string[] | null }).image_urls ?? [])),
+    product.image_url
+  ].filter((image): image is string => Boolean(image));
+  const nextImages = uploadedImages.length ? uploadedImages : Array.from(new Set(existingImages));
+  const nextImage = nextImages[0];
 
   if (!nextImage) {
     redirect(`/vendor/products/${productId}/edit?error=image-required`);
   }
 
+  const updatePayload = {
+    name: String(formData.get("name") ?? "").trim(),
+    category: String(formData.get("category") ?? ""),
+    price: Number(formData.get("price") ?? 0),
+    stock: Number(formData.get("stock") ?? 0),
+    description: String(formData.get("description") ?? "").trim(),
+    image_url: nextImage,
+    image_urls: nextImages,
+    status: "pending",
+    featured: false
+  };
+
   const { error } = await adminClient
     .from("products")
-    .update({
-      name: String(formData.get("name") ?? "").trim(),
-      category: String(formData.get("category") ?? ""),
-      price: Number(formData.get("price") ?? 0),
-      stock: Number(formData.get("stock") ?? 0),
-      description: String(formData.get("description") ?? "").trim(),
-      image_url: nextImage,
-      status: "pending",
-      featured: false
-    })
+    .update(updatePayload)
     .eq("id", productId);
 
   if (error) {
-    redirect(`/vendor/products/${productId}/edit?error=update-failed`);
+    const missingGalleryColumn = error.message.toLowerCase().includes("image_urls");
+
+    if (!missingGalleryColumn) {
+      redirect(`/vendor/products/${productId}/edit?error=update-failed`);
+    }
+
+    const { error: fallbackError } = await adminClient
+      .from("products")
+      .update({ ...updatePayload, image_urls: undefined })
+      .eq("id", productId);
+
+    if (fallbackError) {
+      redirect(`/vendor/products/${productId}/edit?error=update-failed`);
+    }
   }
 
   redirect("/vendor/dashboard?product=resubmitted");
@@ -384,13 +410,25 @@ export async function submitProductForReview(formData: FormData) {
     redirect("/vendor/dashboard?product=vendor-not-approved");
   }
 
-  const imageUrl = await uploadFile("product-images", formData.get("image"), vendorId || "vendor");
+  const submittedFiles = formData.getAll("images");
+  const fileCount = submittedFiles.filter((value) => value instanceof File && value.size > 0).length;
+
+  if (fileCount === 0) {
+    redirect("/vendor/dashboard?product=image-required");
+  }
+
+  if (fileCount > 5) {
+    redirect("/vendor/dashboard?product=max-5-images");
+  }
+
+  const imageUrls = await uploadFiles("product-images", submittedFiles, vendorId || "vendor");
+  const imageUrl = imageUrls[0];
 
   if (!imageUrl) {
     redirect("/vendor/dashboard?product=image-required");
   }
 
-  const { error } = await supabase.from("products").insert({
+  const productPayload = {
     vendor_id: vendorId,
     name: String(formData.get("name") ?? ""),
     category: String(formData.get("category") ?? ""),
@@ -398,17 +436,36 @@ export async function submitProductForReview(formData: FormData) {
     description: String(formData.get("description") ?? ""),
     stock: Number(formData.get("stock") ?? 0),
     image_url: imageUrl,
+    image_urls: imageUrls,
     status: "pending",
     featured: false
-  });
+  };
+
+  const { error } = await supabase.from("products").insert(productPayload);
 
   if (error) {
-    redirect("/vendor/dashboard?product=submit-failed");
+    const missingGalleryColumn = error.message.toLowerCase().includes("image_urls");
+
+    if (!missingGalleryColumn) {
+      redirect("/vendor/dashboard?product=submit-failed");
+    }
+
+    const { error: fallbackError } = await supabase.from("products").insert({ ...productPayload, image_urls: undefined });
+
+    if (fallbackError) {
+      redirect("/vendor/dashboard?product=submit-failed");
+    }
   }
 
   redirect("/vendor/dashboard?product=pending-review");
 }
 
+
+async function uploadFiles(bucket: string, values: FormDataEntryValue[], owner: string) {
+  const files = values.filter((value): value is File => value instanceof File && value.size > 0).slice(0, 5);
+  const uploaded = await Promise.all(files.map((file) => uploadFile(bucket, file, owner)));
+  return uploaded.filter((url): url is string => Boolean(url));
+}
 async function uploadFile(bucket: string, value: FormDataEntryValue | null, owner: string) {
   const supabase = await createClient();
   if (!supabase || !(value instanceof File) || value.size === 0) {

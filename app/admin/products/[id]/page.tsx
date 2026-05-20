@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, BadgeCheck, Boxes, FileText, ImageIcon, PackageCheck, Store } from "lucide-react";
 import { AdminDecisionButtons } from "@/components/admin-decision-buttons";
@@ -50,10 +50,19 @@ export default async function AdminProductReview({ params }: { params: Promise<{
 
           <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
             <div className="grid gap-6">
-              <section className="card overflow-hidden rounded-[24px]">
-                <div className="relative aspect-[4/3] bg-[#F3EEFF]">
+              <section className="card rounded-[24px] p-4">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] bg-[#F3EEFF]">
                   <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" priority />
                 </div>
+                {product.images.length > 1 ? (
+                  <div className="mt-4 grid grid-cols-5 gap-2">
+                    {product.images.slice(0, 5).map((image, index) => (
+                      <a key={image} href={image} target="_blank" className="relative aspect-square overflow-hidden rounded-xl border border-[#ece6ff] bg-[#F3EEFF]">
+                        <Image src={image} alt={`${product.name} submitted image ${index + 1}`} fill className="object-cover" sizes="120px" />
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
               </section>
 
               <ReviewSection title="Submitted Product Details" icon={<FileText className="text-[#6C3CF0]" />}>
