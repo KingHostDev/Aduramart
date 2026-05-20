@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, BadgeCheck, Check, FileCheck, IdCard, Store, Tag
 import { StoreAddressFields } from "@/components/store-address-fields";
 import { VendorOAuthButtons } from "@/components/vendor-oauth-buttons";
 import { categories } from "@/lib/data";
+import { passwordPattern, passwordRequirementText } from "@/lib/password";
 import { createClient } from "@/lib/supabase/client";
 
 const steps = [
@@ -190,7 +191,7 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
                 <Field stepIndex={0} name="email" label="Email" placeholder="vendor@example.com" type="email" />
                 <Field stepIndex={0} name="phone" label="Phone" placeholder="+234..." />
                 <Field stepIndex={0} name="whatsapp" label="WhatsApp" placeholder="+234..." />
-                <Field stepIndex={0} name="password" label={oauthUser ? "Password (manual only)" : "Password"} placeholder="Create password" type="password" required={!oauthUser} className="sm:col-span-2" />
+                <PasswordField stepIndex={0} required={!oauthUser} label={oauthUser ? "Password (manual only)" : "Password"} />
               </div>
             </StepPanel>
 
@@ -308,6 +309,26 @@ function CategoryPicker({ selectedCategories, onToggle }: { selectedCategories: 
   );
 }
 
+function PasswordField({ stepIndex, required, label }: { stepIndex: number; required: boolean; label: string }) {
+  return (
+    <label className="grid gap-2 text-xs font-bold text-white/76 sm:col-span-2">
+      {label}
+      <input
+        name="password"
+        type="password"
+        placeholder="Create password"
+        data-step={stepIndex}
+        data-required={required ? "true" : "false"}
+        minLength={8}
+        maxLength={16}
+        pattern={passwordPattern}
+        title={passwordRequirementText}
+        className={inputClass}
+      />
+      <span className="text-[11px] font-semibold leading-5 text-white/42">{passwordRequirementText}</span>
+    </label>
+  );
+}
 function StepPanel({ active, children }: { active: boolean; children: ReactNode }) {
   return <section className={active ? "block" : "hidden"}>{children}</section>;
 }

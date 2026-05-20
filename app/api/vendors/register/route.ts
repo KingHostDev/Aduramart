@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isStrongPassword, passwordRequirementText } from "@/lib/password";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -18,6 +19,10 @@ export async function POST(request: Request) {
 
   if (!email || !ownerName || (!activeUser && !password)) {
     return NextResponse.json({ error: "Personal information is incomplete." }, { status: 400 });
+  }
+
+  if (!activeUser && !isStrongPassword(password)) {
+    return NextResponse.json({ error: passwordRequirementText }, { status: 400 });
   }
 
   if (formData.get("termsAccepted") !== "on") {

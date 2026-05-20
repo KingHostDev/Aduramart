@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { requireSuperAdmin } from "./admin-auth";
+import { isStrongPassword } from "./password";
 import { createAdminClient } from "./supabase/admin";
 import { createClient } from "./supabase/server";
 

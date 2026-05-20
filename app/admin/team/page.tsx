@@ -5,6 +5,7 @@ import { createAdminAccount } from "@/lib/actions";
 import { requireSuperAdmin } from "@/lib/admin-auth";
 import { getAdminProfiles } from "@/lib/queries";
 import { requireAdminPage } from "@/lib/admin-auth";
+import { passwordPattern, passwordRequirementText } from "@/lib/password";
 
 export default async function AdminTeamPage({ searchParams }: { searchParams?: Promise<{ created?: string; error?: string }> }) {
   await requireAdminPage();
@@ -51,7 +52,7 @@ export default async function AdminTeamPage({ searchParams }: { searchParams?: P
                   <Field name="fullName" label="Full name" placeholder="Admin full name" icon={<UsersRound size={18} />} />
                   <Field name="email" label="Email address" placeholder="admin@aduramart.com" type="email" icon={<Mail size={18} />} />
                   <Field name="phone" label="Phone number" placeholder="+234..." icon={<Phone size={18} />} required={false} />
-                  <Field name="password" label="Password" placeholder="Set secure password" type="password" icon={<KeyRound size={18} />} />
+                  <Field name="password" label="Password" placeholder="Set secure password" type="password" icon={<KeyRound size={18} />} helper={passwordRequirementText} pattern={passwordPattern} minLength={8} maxLength={16} />
                   <label className="grid gap-2 text-sm font-extrabold text-[#1F1F1F] md:col-span-2">
                     Admin role
                     <select name="role" className="rounded-2xl border border-[#ece6ff] bg-white px-4 py-3 font-semibold outline-none focus:border-[#6C3CF0]">
@@ -79,13 +80,13 @@ export default async function AdminTeamPage({ searchParams }: { searchParams?: P
   );
 }
 
-function Field({ label, name, placeholder, icon, type = "text", required = true }: { label: string; name: string; placeholder: string; icon: React.ReactNode; type?: string; required?: boolean }) {
+function Field({ label, name, placeholder, icon, type = "text", required = true, helper, pattern, minLength, maxLength }: { label: string; name: string; placeholder: string; icon: React.ReactNode; type?: string; required?: boolean; helper?: string; pattern?: string; minLength?: number; maxLength?: number }) {
   return (
     <label className="grid gap-2 text-sm font-extrabold text-[#1F1F1F]">
       {label}
       <span className="flex items-center gap-3 rounded-2xl border border-[#ece6ff] bg-white px-4 py-3">
         <span className="text-[#6C3CF0]">{icon}</span>
-        <input name={name} type={type} placeholder={placeholder} required={required} className="w-full bg-transparent font-semibold outline-none" />
+        <input name={name} type={type} placeholder={placeholder} required={required} pattern={pattern} minLength={minLength} maxLength={maxLength} title={helper} className="w-full bg-transparent font-semibold outline-none" />
       </span>
     </label>
   );
@@ -137,6 +138,7 @@ function adminErrorMessage(error: string) {
   const messages: Record<string, string> = {
     "super-admin-required": "Only a logged-in Super Admin can create admin accounts.",
     incomplete: "Full name, email, and password are required.",
+    "weak-password": passwordRequirementText,
     "create-failed": "The admin auth account could not be created. Check if the email already exists.",
     "profile-failed": "The auth account was created, but the admin profile could not be saved. Check the profiles table."
   };
