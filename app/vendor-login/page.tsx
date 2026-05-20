@@ -3,7 +3,8 @@ import { Footer } from "@/components/footer";
 import { ArrowRight, BadgeCheck, LockKeyhole, Mail, PackageCheck, ShieldCheck, Store } from "lucide-react";
 import { loginVendor } from "@/lib/actions";
 
-export default function VendorLoginPage() {
+export default async function VendorLoginPage({ searchParams }: { searchParams?: Promise<{ recovered?: string }> }) {
+  const params = await (searchParams ?? Promise.resolve({} as { recovered?: string }));
   return (
     <>
       <main className="bg-[#202020] px-3 py-8 md:px-6 md:py-12">
@@ -48,6 +49,8 @@ export default function VendorLoginPage() {
                   <p className="mt-2 text-sm font-semibold text-white/46">Use your vendor email and password.</p>
                 </div>
 
+                {params.recovered ? <div className="mb-5 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm font-bold text-emerald-200">Password updated. Sign in with your new password.</div> : null}
+
                 <div className="grid gap-4">
                   <label className="grid gap-2 text-xs font-bold text-white/76">
                     Email
@@ -75,7 +78,7 @@ export default function VendorLoginPage() {
                 </Link>
 
                 <div className="mt-5 flex flex-wrap justify-center gap-3 text-sm font-bold text-white/42">
-                  <a href="#" className="transition hover:text-white">Recover password</a>
+                  <Link href="/vendor-recover" className="transition hover:text-white">Recover password</Link>
                 </div>
               </form>
             </section>

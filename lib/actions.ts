@@ -1,11 +1,76 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireSuperAdmin } from "./admin-auth";
 import { isStrongPassword } from "./password";
 import { createAdminClient } from "./supabase/admin";
 import { createClient } from "./supabase/server";
 
+export async function sendVendorRecoveryOtp(formData: FormData) {
+  const supabase = await createClient();
+
+  if (!supabase) {
+    redirect("/vendor-recover?error=not-configured");
+  }
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+
+  if (!email) {
+    redirect("/vendor-recover?error=email-required");
+  }
+
+  const requestHeaders = await headers();
+  const origin = requestHeaders.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/vendor-reset`
+  });
+
+  if (error) {
+    redirect(`/vendor-recover?error=${encodeURIComponent(error.code ?? "send-failed")}`);
+  }
+
+  redirect(`/vendor-reset?sent=1&email=${encodeURIComponent(email)}`);
+}
+
+export async function resetVendorPasswordWithOtp(formData: FormData) {
+  const supabase = await createClient();
+
+  if (!supabase) {
+    redirect("/vendor-reset?error=not-configured");
+  }
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const token = String(formData.get("token") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+
+  if (!email || !token || !password) {
+    redirect("/vendor-reset?error=incomplete");
+  }
+
+  if (!isStrongPassword(password)) {
+    redirect(`/vendor-reset?error=weak-password&email=${encodeURIComponent(email)}`);
+  }
+
+  const { error: verifyError } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "recovery"
+  });
+
+  if (verifyError) {
+    redirect(`/vendor-reset?error=invalid-code&email=${encodeURIComponent(email)}`);
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({ password });
+
+  if (updateError) {
+    redirect(`/vendor-reset?error=update-failed&email=${encodeURIComponent(email)}`);
+  }
+
+  await supabase.auth.signOut();
+  redirect("/vendor-login?recovered=1");
+}
 export async function loginAdmin(formData: FormData) {
   const supabase = await createClient();
   const adminClient = createAdminClient();
