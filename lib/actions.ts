@@ -21,13 +21,15 @@ export async function sendVendorRecoveryOtp(formData: FormData) {
   }
 
   const requestHeaders = await headers();
-  const origin = requestHeaders.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? requestHeaders.get("origin") ?? "http://localhost:3000";
+  const redirectTo = `${origin.replace(/\/$/, "")}/vendor-reset`;
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/vendor-reset`
+    redirectTo
   });
 
   if (error) {
-    redirect(`/vendor-recover?error=${encodeURIComponent(error.code ?? "send-failed")}`);
+    const reason = error.message || error.code || "AduraMart could not send the recovery code. Please try again.";
+    redirect(`/vendor-recover?error=send-failed&reason=${encodeURIComponent(reason)}`);
   }
 
   redirect(`/vendor-reset?sent=1&email=${encodeURIComponent(email)}`);

@@ -3,8 +3,8 @@ import { ArrowRight, KeyRound, Mail, Store } from "lucide-react";
 import { Footer } from "@/components/footer";
 import { sendVendorRecoveryOtp } from "@/lib/actions";
 
-export default async function VendorRecoverPage({ searchParams }: { searchParams?: Promise<{ error?: string }> }) {
-  const params = await (searchParams ?? Promise.resolve({} as { error?: string }));
+export default async function VendorRecoverPage({ searchParams }: { searchParams?: Promise<{ error?: string; reason?: string }> }) {
+  const params = await (searchParams ?? Promise.resolve({} as { error?: string; reason?: string }));
 
   return (
     <>
@@ -36,7 +36,7 @@ export default async function VendorRecoverPage({ searchParams }: { searchParams
                   <p className="mt-2 text-sm font-semibold text-white/46">We will email your password recovery code.</p>
                 </div>
 
-                {params.error ? <Notice message={recoverErrorMessage(params.error)} /> : null}
+                {params.error ? <Notice message={recoverErrorMessage(params.error, params.reason)} /> : null}
 
                 <label className="grid gap-2 text-xs font-bold text-white/76">
                   Vendor Email
@@ -68,7 +68,9 @@ function Notice({ message }: { message: string }) {
   return <div className="mb-5 rounded-xl border border-red-400/20 bg-red-500/10 p-4 text-sm font-bold text-red-200">{message}</div>;
 }
 
-function recoverErrorMessage(error: string) {
+function recoverErrorMessage(error: string, reason?: string) {
+  if (reason) return reason;
+
   const messages: Record<string, string> = {
     "not-configured": "Supabase is not configured on this deployment.",
     "email-required": "Enter your vendor email first.",
