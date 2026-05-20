@@ -134,6 +134,8 @@ export async function registerVendor(formData: FormData) {
     }
   });
 
+  const selectedCategories = formData.getAll("category").map((value) => String(value).trim()).filter(Boolean);
+
   const [governmentIdUrl, selfieUrl, bannerUrl, logoUrl] = await Promise.all([
     uploadFile("vendor-government-ids", formData.get("governmentId"), email),
     uploadFile("vendor-selfies", formData.get("selfie"), email),
@@ -146,7 +148,7 @@ export async function registerVendor(formData: FormData) {
     store_name: String(formData.get("storeName") ?? ""),
     email,
     phone: String(formData.get("phone") ?? ""),
-    category: String(formData.get("category") ?? "Worship Materials"),
+    category: selectedCategories.length ? selectedCategories.join(", ") : "Worship Materials",
     location: String(formData.get("location") ?? "Nigeria"),
     whatsapp: String(formData.get("whatsapp") ?? ""),
     description: String(formData.get("description") ?? ""),

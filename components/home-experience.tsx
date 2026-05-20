@@ -107,7 +107,7 @@ export function HomeHero() {
               <Flame className="text-[#FFB86B]" />
             </div>
             <div className="mt-4 flex gap-2 overflow-hidden text-xs font-extrabold text-[#6B7280]">
-              {["Garments", "Oils", "Books"].map((item) => <span key={item} className="rounded-full bg-[#F3EEFF] px-3 py-1">{item}</span>)}
+              {["Garments & Girdle", "Oils & Perfumes", "Books"].map((item) => <span key={item} className="rounded-full bg-[#F3EEFF] px-3 py-1">{item}</span>)}
             </div>
           </motion.div>
         </motion.div>

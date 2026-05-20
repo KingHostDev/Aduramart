@@ -1,3 +1,4 @@
+import { normalizeCategoryLabel } from "./data";
 import { createAdminClient } from "./supabase/admin";
 import { createClient } from "./supabase/server";
 import type { AdminProfile, KycStatus, Order, Product, Vendor } from "./types";
@@ -65,7 +66,7 @@ function mapVendor(vendor: VendorRecord): Vendor {
     ownerName: vendor.owner_name,
     email: vendor.email ?? "",
     phone: vendor.phone ?? "",
-    category: vendor.category,
+    category: normalizeCategoryLabel(vendor.category),
     location: vendor.location,
     address: vendor.address ?? "",
     city: vendor.city ?? "",
@@ -106,7 +107,7 @@ function mapProduct(product: ProductRecord): Product {
     name: product.name,
     vendorId: product.vendor_id,
     vendorName: product.vendors?.store_name ?? "Verified vendor",
-    category: product.category,
+    category: normalizeCategoryLabel(product.category),
     price: product.price,
     image,
     images: images.length ? images : [image],

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, BadgeCheck, Check, FileCheck, IdCard, Store } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Check, FileCheck, IdCard, Store, Tags } from "lucide-react";
 import { StoreAddressFields } from "@/components/store-address-fields";
 import { VendorOAuthButtons } from "@/components/vendor-oauth-buttons";
 import { categories } from "@/lib/data";
@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/client";
 const steps = [
   { label: "Account", copy: "Owner details", icon: BadgeCheck },
   { label: "Identity", copy: "ID and selfie", icon: IdCard },
+  { label: "Catalog", copy: "What you sell", icon: Tags },
   { label: "Store", copy: "Public profile", icon: Store },
   { label: "Review", copy: "Final consent", icon: FileCheck }
 ];
@@ -22,6 +23,7 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [oauthUser, setOauthUser] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
   const progress = useMemo(() => ((completedSteps.length + (completedSteps.includes(step) ? 0 : 1)) / steps.length) * 100, [completedSteps, step]);
 
@@ -59,7 +61,7 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
     });
 
     if (invalidField) {
-      setError("Complete this step before moving forward.");
+      setError(stepToValidate === 2 ? "Select at least one category you sell." : "Complete this step before moving forward.");
       if (shouldFocus) invalidField.focus();
       return false;
     }
@@ -78,6 +80,10 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
 
     if (!validateStep(step)) return;
     setStep(Math.min(step + 1, targetStep));
+  };
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories((current) => current.includes(category) ? current.filter((item) => item !== category) : [...current, category]);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -134,7 +140,7 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
               {submitted ? <div className="mt-6 rounded-2xl bg-white p-4 text-sm font-extrabold text-[#16803E]">Application received. Your store is pending approval.</div> : null}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
               {steps.map(({ label, copy, icon: Icon }, index) => {
                 const completed = completedSteps.includes(index);
                 const active = step === index;
@@ -208,38 +214,42 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
             </StepPanel>
 
             <StepPanel active={step === 2}>
+              <PanelTitle title="Choose what you sell" copy="Pick every category that belongs to your store." />
+              <CategoryPicker selectedCategories={selectedCategories} onToggle={toggleCategory} />
+            </StepPanel>
+
+            <StepPanel active={step === 3}>
               <PanelTitle title="Set up your store" copy="This becomes your public vendor profile after approval." />
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field stepIndex={2} name="storeName" label="Store Name" placeholder="Your spiritual store" />
-                <label className="grid gap-2 text-xs font-bold text-white/76">
-                  Category
-                  <select name="category" data-step="2" data-required="true" className={inputClass}>
-                    {categories.map((category) => <option key={category}>{category}</option>)}
-                  </select>
-                </label>
-                <StoreAddressFields stepIndex={2} theme="dark" />
-                <FileField stepIndex={2} name="banner" label="Store Banner" />
-                <FileField stepIndex={2} name="logo" label="Store Logo" />
+                <Field stepIndex={3} name="storeName" label="Store Name" placeholder="Your spiritual store" />
+                <StoreAddressFields stepIndex={3} theme="dark" />
+                <FileField stepIndex={3} name="banner" label="Store Banner" />
+                <FileField stepIndex={3} name="logo" label="Store Logo" />
                 <label className="grid gap-2 text-xs font-bold text-white/76 sm:col-span-2">
                   Store Bio
-                  <textarea name="description" data-step="2" data-required="true" rows={4} placeholder="Tell buyers what your store offers" className={inputClass} />
+                  <textarea name="description" data-step="3" data-required="true" rows={4} placeholder="Tell buyers what your store offers" className={inputClass} />
                 </label>
               </div>
             </StepPanel>
 
-            <StepPanel active={step === 3}>
+            <StepPanel active={step === 4}>
               <PanelTitle title="Review and submit" copy="Your application enters admin approval." />
-              <div className="grid gap-3 sm:grid-cols-3">
-                {["Account", "Identity", "Store"].map((label, index) => (
+              <div className="grid gap-3 sm:grid-cols-4">
+                {[
+                  ["Account", 0],
+                  ["Identity", 1],
+                  ["Catalog", 2],
+                  ["Store", 3]
+                ].map(([label, index]) => (
                   <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
                     <Check className="text-emerald-300" size={18} />
                     <p className="mt-4 text-sm font-extrabold">{label}</p>
-                    <p className="mt-1 text-xs font-semibold text-white/44">{completedSteps.includes(index) ? "Complete" : "Ready"}</p>
+                    <p className="mt-1 text-xs font-semibold text-white/44">{completedSteps.includes(Number(index)) ? "Complete" : "Ready"}</p>
                   </div>
                 ))}
               </div>
               <label className="mt-5 flex gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-sm font-semibold leading-7 text-white/76">
-                <input name="termsAccepted" type="checkbox" data-step="3" data-required="true" className="mt-1 size-5 shrink-0 accent-[#6C3CF0]" />
+                <input name="termsAccepted" type="checkbox" data-step="4" data-required="true" className="mt-1 size-5 shrink-0 accent-[#6C3CF0]" />
                 <span>I agree to AduraMart vendor terms, company rights, marketplace review rules, and product posting guidelines.</span>
               </label>
             </StepPanel>
@@ -271,7 +281,34 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
 
 const inputClass = "rounded-xl border border-white/10 bg-white/[0.07] px-4 py-3 font-semibold text-white outline-none placeholder:text-white/35 focus:border-white/32";
 
-function StepPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
+function CategoryPicker({ selectedCategories, onToggle }: { selectedCategories: string[]; onToggle: (category: string) => void }) {
+  return (
+    <div>
+      <input type="hidden" value={selectedCategories.join(", ")} data-step="2" data-required="true" readOnly />
+      <div className="grid gap-3 sm:grid-cols-2">
+        {categories.map((category, index) => {
+          const selected = selectedCategories.includes(category);
+          return (
+            <label
+              key={category}
+              className={`group flex min-h-28 cursor-pointer flex-col justify-between rounded-2xl border p-4 transition duration-300 ${selected ? "border-white bg-white text-black shadow-xl shadow-white/10" : "border-white/10 bg-white/[0.06] text-white/62 blur-[0.25px] hover:border-white/24 hover:bg-white/[0.1]"}`}
+            >
+              <input name="category" type="checkbox" value={category} checked={selected} onChange={() => onToggle(category)} className="sr-only" />
+              <span className={`grid size-8 place-items-center rounded-full text-xs font-extrabold ${selected ? "bg-black text-white" : "bg-white/12 text-white"}`}>
+                {selected ? <Check size={15} /> : index + 1}
+              </span>
+              <span className="mt-5 text-sm font-extrabold leading-5">{category}</span>
+              <span className={`mt-2 text-xs font-semibold ${selected ? "text-black/52" : "text-white/38"}`}>{selected ? "Selected" : "Tap to select"}</span>
+            </label>
+          );
+        })}
+      </div>
+      <p className="mt-4 text-xs font-semibold text-white/42">You can choose more than one. Admins will see these areas during vendor review.</p>
+    </div>
+  );
+}
+
+function StepPanel({ active, children }: { active: boolean; children: ReactNode }) {
   return <section className={active ? "block" : "hidden"}>{children}</section>;
 }
 

@@ -17,7 +17,7 @@ export function Footer() {
           </p>
         </div>
         {[
-          ["Marketplace", ["White Garments", "Candles", "Oils", "Books"]],
+          ["Marketplace", ["Church Garments & Girdle", "Candles", "Oils & Perfumes", "Books"]],
           ["Platform", ["Vendor onboarding", "Admin review", "Order tracking", "Messaging"]],
           ["Trust", ["Verified stores", "Secure checkout", "Support", "Guidelines"]]
         ].map(([title, items]) => (

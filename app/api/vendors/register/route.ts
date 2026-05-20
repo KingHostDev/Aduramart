@@ -63,6 +63,7 @@ export async function POST(request: Request) {
     uploadFile(supabase, "vendor-logos", formData.get("logo"), email)
   ]);
 
+  const selectedCategories = formData.getAll("category").map((value) => String(value).trim()).filter(Boolean);
   const city = String(formData.get("city") ?? "").trim();
   const state = String(formData.get("state") ?? "").trim();
   const country = String(formData.get("country") ?? "Nigeria").trim();
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
     store_name: String(formData.get("storeName") ?? "").trim(),
     email,
     phone: String(formData.get("phone") ?? "").trim(),
-    category: String(formData.get("category") ?? "Worship Materials"),
+    category: selectedCategories.length ? selectedCategories.join(", ") : "Worship Materials",
     location: [city, state, country].filter(Boolean).join(", ") || "Nigeria",
     address: String(formData.get("address") ?? "").trim(),
     city,

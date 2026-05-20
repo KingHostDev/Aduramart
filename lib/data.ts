@@ -1,9 +1,9 @@
 import type { Order, Product, Vendor } from "./types";
 
 export const categories = [
-  "White Garments",
+  "Church Garments & Girdle",
   "Candles",
-  "Oils",
+  "Oils & Perfumes",
   "Spiritual Books",
   "Prayer Accessories",
   "Worship Materials"
@@ -14,7 +14,7 @@ export const vendors: Vendor[] = [
     id: "seraph-light",
     storeName: "Seraph Light Vestments",
     ownerName: "Mariam Adebayo",
-    category: "White Garments",
+    category: "Church Garments & Girdle",
     location: "Lagos, Nigeria",
     rating: 4.9,
     likes: 342,
@@ -31,7 +31,7 @@ export const vendors: Vendor[] = [
     id: "zion-oils",
     storeName: "Zion Oils & Candles",
     ownerName: "Tunde Omotoso",
-    category: "Oils",
+    category: "Oils & Perfumes",
     location: "Ibadan, Nigeria",
     rating: 4.8,
     likes: 276,
@@ -86,7 +86,7 @@ export const products: Product[] = [
     name: "Premium White Sutana Robe",
     vendorId: "seraph-light",
     vendorName: "Seraph Light Vestments",
-    category: "White Garments",
+    category: "Church Garments & Girdle",
     price: 28500,
     image: "https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=1200&q=80",
     images: ["https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=1200&q=80"],
@@ -114,7 +114,7 @@ export const products: Product[] = [
     name: "Anointing Oil Family Pack",
     vendorId: "zion-oils",
     vendorName: "Zion Oils & Candles",
-    category: "Oils",
+    category: "Oils & Perfumes",
     price: 12400,
     image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=1200&q=80",
     images: ["https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=1200&q=80"],
@@ -165,3 +165,16 @@ export const formatNaira = (amount: number) =>
     currency: "NGN",
     maximumFractionDigits: 0
   }).format(amount);
+
+
+export const normalizeCategoryLabel = (category: string) =>
+  category
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => {
+      if (item === "White Garments") return "Church Garments & Girdle";
+      if (item === "Oils") return "Oils & Perfumes";
+      return item;
+    })
+    .join(", ");
