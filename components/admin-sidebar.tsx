@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DashboardLogout } from "./dashboard-logout";
 import type { LucideIcon } from "lucide-react";
-import { AlertTriangle, BarChart3, LayoutDashboard, PackageSearch, Shield, UserCog, UsersRound } from "lucide-react";
+import { AlertTriangle, BarChart3, LayoutDashboard, MessageCircle, PackageSearch, Shield, UserCog, UsersRound } from "lucide-react";
 
 const adminLinks: [LucideIcon, string, string][] = [
   [LayoutDashboard, "Dashboard", "/admin/dashboard"],
   [BarChart3, "Analytics", "/admin/analytics"],
   [UsersRound, "Vendors", "/admin/vendors"],
   [PackageSearch, "Product moderation", "/admin/products"],
+  [MessageCircle, "Messages", "/admin/messages"],
   [UserCog, "Admin team", "/admin/team"],
   [AlertTriangle, "Reports", "/admin/reports"],
   [Shield, "Admin settings", "/admin/settings"]

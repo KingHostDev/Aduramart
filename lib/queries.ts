@@ -1,7 +1,7 @@
 import { normalizeCategoryLabel } from "./data";
 import { createAdminClient } from "./supabase/admin";
 import { createClient } from "./supabase/server";
-import type { AdminProfile, KycStatus, Order, Product, Vendor } from "./types";
+import type { AdminProfile, ContactMessage, KycStatus, Order, Product, Vendor } from "./types";
 
 type VendorRecord = {
   id: string;
@@ -48,6 +48,18 @@ type ProductRecord = {
   featured?: boolean | null;
   description?: string | null;
   stock?: number | null;
+};
+
+type MessageRecord = {
+  id: string;
+  sender_email: string;
+  sender_name?: string | null;
+  recipient_type: "admin" | "vendor";
+  recipient_id?: string | null;
+  subject: string;
+  body: string;
+  status: "new" | "read" | "resolved";
+  created_at: string;
 };
 
 type OrderRecord = {
@@ -117,6 +129,20 @@ function mapProduct(product: ProductRecord): Product {
     stock: product.stock ?? 0
   };
 }
+function mapMessage(message: MessageRecord): ContactMessage {
+  return {
+    id: message.id,
+    senderEmail: message.sender_email,
+    senderName: message.sender_name ?? "",
+    recipientType: message.recipient_type,
+    recipientId: message.recipient_id ?? null,
+    subject: message.subject,
+    body: message.body,
+    status: message.status,
+    createdAt: message.created_at
+  };
+}
+
 function mapOrder(order: OrderRecord): Order {
   return {
     id: order.id,
@@ -514,4 +540,23 @@ export async function getAdminProfiles(): Promise<AdminProfile[]> {
     phone: profile.phone,
     createdAt: profile.created_at
   }));
+}
+
+export async function getAdminMessages(): Promise<ContactMessage[]> {
+  const supabase = createAdminClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("messages")
+    .select("id, sender_email, sender_name, recipient_type, recipient_id, subject, body, status, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map((message) => mapMessage(message as MessageRecord));
 }

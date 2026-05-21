@@ -65,3 +65,15 @@ export type Order = {
   status: "placed" | "confirmed" | "packed" | "in-transit" | "delivered";
   eta: string;
 };
+
+export type ContactMessage = {
+  id: string;
+  senderEmail: string;
+  senderName: string;
+  recipientType: "admin" | "vendor";
+  recipientId?: string | null;
+  subject: string;
+  body: string;
+  status: "new" | "read" | "resolved";
+  createdAt: string;
+};

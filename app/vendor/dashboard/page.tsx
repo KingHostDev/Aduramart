@@ -45,6 +45,10 @@ export default async function VendorDashboard() {
   return (
     <>
       <Nav />
+      <Link href="/messages?to=admin&topic=support" className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-[#6C3CF0] px-5 py-3 text-sm font-extrabold text-white shadow-2xl shadow-purple-500/30 transition hover:bg-[#5b2fe0]">
+        <MessageCircle size={18} />
+        Contact Admin
+      </Link>
       <main className="container grid gap-6 py-8 lg:grid-cols-[260px_1fr]">
         <VendorSidebar />
         <section className="grid gap-6">
@@ -100,10 +104,10 @@ function VendorSidebar() {
         [BarChart3, "Analytics"],
         [Box, "Products"],
         [Truck, "Orders"],
-        [MessageCircle, "Messages"],
+        [MessageCircle, "Contact Admin"],
         [Settings, "Store settings"]
       ].map(([Icon, label]) => (
-        <a key={label as string} href="#" className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-extrabold hover:bg-[#F3EEFF]">
+        <a key={label as string} href={label === "Contact Admin" ? "/messages?to=admin&topic=support" : "#"} className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-extrabold hover:bg-[#F3EEFF]">
           <Icon size={18} className="text-[#6C3CF0]" />
           {label as string}
         </a>

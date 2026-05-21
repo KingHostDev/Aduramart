@@ -8,6 +8,7 @@ import {
   Clock3,
   Eye,
   Landmark,
+  MessageCircle,
   PackageCheck,
   PackageSearch,
   ShieldCheck,
@@ -24,6 +25,7 @@ import { AdminModerationPanel } from "@/components/admin-moderation-panel";
 import { Nav } from "@/components/nav";
 import { formatNaira } from "@/lib/data";
 import {
+  getAdminMessages,
   getAdminOrders,
   getApprovedProducts,
   getApprovedVendors,
@@ -39,14 +41,15 @@ const orderStages = ["placed", "confirmed", "packed", "in-transit", "delivered"]
 
 export default async function AdminDashboard() {
   await requireAdminPage();
-  const [approvedVendors, pendingVendors, rejectedVendors, approvedProducts, pendingProducts, rejectedProducts, orders] = await Promise.all([
+  const [approvedVendors, pendingVendors, rejectedVendors, approvedProducts, pendingProducts, rejectedProducts, orders, messages] = await Promise.all([
     getApprovedVendors(),
     getPendingVendors(),
     getRejectedVendors(),
     getApprovedProducts(),
     getPendingProducts(),
     getRejectedProducts(),
-    getAdminOrders()
+    getAdminOrders(),
+    getAdminMessages()
   ]);
 
   const allVendors = [...approvedVendors, ...pendingVendors, ...rejectedVendors];
@@ -106,10 +109,11 @@ export default async function AdminDashboard() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             <DashboardMetric title="Revenue" value={formatNaira(revenue)} detail={`${orders.length} orders captured`} icon={<WalletCards />} tone="purple" />
             <DashboardMetric title="Average order" value={formatNaira(averageOrder)} detail="Order value signal" icon={<ShoppingBag />} tone="gold" />
             <DashboardMetric title="Pending reviews" value={String(reviewLoad)} detail={`${pendingVendors.length} vendors, ${pendingProducts.length} listings`} icon={<BellRing />} tone="red" />
+            <DashboardMetric title="Messages" value={String(messages.length)} detail={`${messages.filter((message) => message.status === "new").length} new inbox items`} icon={<MessageCircle />} tone="purple" />
             <DashboardMetric title="Trust score" value={`${trustScore}%`} detail="Verification + listing health" icon={<ShieldCheck />} tone="green" />
           </div>
 
@@ -201,8 +205,8 @@ export default async function AdminDashboard() {
                   <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#6C3CF0]">Priority queue</p>
                   <h2 className="mt-2 text-2xl font-black">Needs admin attention</h2>
                 </div>
-                <Link href="/admin/vendors" className="inline-flex items-center gap-2 rounded-full border border-[#dcd1ff] px-4 py-2 text-sm font-extrabold text-[#6C3CF0] transition hover:bg-[#F3EEFF]">
-                  View all
+                <Link href="/admin/messages" className="inline-flex items-center gap-2 rounded-full border border-[#dcd1ff] px-4 py-2 text-sm font-extrabold text-[#6C3CF0] transition hover:bg-[#F3EEFF]">
+                  Open messages
                   <Eye size={16} />
                 </Link>
               </div>
@@ -339,4 +343,3 @@ function percentage(value: number, total: number) {
 
   return Math.round((value / total) * 100);
 }
-
