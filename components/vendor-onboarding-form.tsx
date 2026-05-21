@@ -260,6 +260,7 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
                   </div>
                 ))}
               </div>
+              <PasswordFields required={!oauthUser} />
               <label className="mt-5 flex gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-sm font-semibold leading-7 text-white/76">
                 <input name="termsAccepted" type="checkbox" data-step="4" data-required="true" className="mt-1 size-5 shrink-0 accent-[#6C3CF0]" />
                 <span>I agree to AduraMart vendor terms, company rights, marketplace review rules, and product posting guidelines.</span>
