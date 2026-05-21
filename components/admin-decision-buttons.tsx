@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Check, EyeOff, Loader2, RotateCcw, ShieldOff, Trash2, X } from "lucide-react";
 import type { ApprovalStatus } from "@/lib/types";
 
-type AdminAction = "approve" | "reject" | "hide" | "suspend" | "restore";
+type AdminAction = "approve" | "reject" | "hide" | "suspend" | "restore" | "delete";
 
 export function AdminDecisionButtons({
   type,

@@ -58,13 +58,25 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
     const invalidField = Array.from(fields).find((field) => {
       if (field instanceof HTMLInputElement && field.type === "file") return !field.files?.length;
       if (field instanceof HTMLInputElement && field.type === "checkbox") return !field.checked;
-      return !field.value.trim();
+      return !field.value.trim() || !field.checkValidity();
     });
 
     if (invalidField) {
-      setError(stepToValidate === 2 ? "Select at least one category you sell." : "Complete this step before moving forward.");
+      const validityMessage = invalidField.validationMessage;
+      setError(stepToValidate === 2 ? "Select at least one category you sell." : validityMessage || "Complete this step before moving forward.");
       if (shouldFocus) invalidField.focus();
       return false;
+    }
+
+    if (stepToValidate === 4 && !oauthUser) {
+      const password = formRef.current?.elements.namedItem("password") as HTMLInputElement | null;
+      const confirmPassword = formRef.current?.elements.namedItem("confirmPassword") as HTMLInputElement | null;
+
+      if (!password?.value || !confirmPassword?.value || password.value !== confirmPassword.value) {
+        setError("Passwords must match before you submit your application.");
+        if (shouldFocus) (confirmPassword ?? password)?.focus();
+        return false;
+      }
     }
 
     setError("");
@@ -191,7 +203,6 @@ export function VendorOnboardingForm({ submitted }: { submitted?: string }) {
                 <Field stepIndex={0} name="email" label="Email" placeholder="vendor@example.com" type="email" />
                 <Field stepIndex={0} name="phone" label="Phone" placeholder="+234..." />
                 <Field stepIndex={0} name="whatsapp" label="WhatsApp" placeholder="+234..." />
-                <PasswordField stepIndex={0} required={!oauthUser} label={oauthUser ? "Password (manual only)" : "Password"} />
               </div>
             </StepPanel>
 
@@ -309,24 +320,41 @@ function CategoryPicker({ selectedCategories, onToggle }: { selectedCategories: 
   );
 }
 
-function PasswordField({ stepIndex, required, label }: { stepIndex: number; required: boolean; label: string }) {
+function PasswordFields({ required }: { required: boolean }) {
   return (
-    <label className="grid gap-2 text-xs font-bold text-white/76 sm:col-span-2">
-      {label}
-      <input
-        name="password"
-        type="password"
-        placeholder="Create password"
-        data-step={stepIndex}
-        data-required={required ? "true" : "false"}
-        minLength={8}
-        maxLength={16}
-        pattern={passwordPattern}
-        title={passwordRequirementText}
-        className={inputClass}
-      />
-      <span className="text-[11px] font-semibold leading-5 text-white/42">{passwordRequirementText}</span>
-    </label>
+    <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      <label className="grid gap-2 text-xs font-bold text-white/76">
+        Create Password
+        <input
+          name="password"
+          type="password"
+          placeholder="Create password"
+          data-step="4"
+          data-required={required ? "true" : "false"}
+          minLength={8}
+          maxLength={16}
+          pattern={passwordPattern}
+          title={passwordRequirementText}
+          className={inputClass}
+        />
+      </label>
+      <label className="grid gap-2 text-xs font-bold text-white/76">
+        Confirm Password
+        <input
+          name="confirmPassword"
+          type="password"
+          placeholder="Confirm password"
+          data-step="4"
+          data-required={required ? "true" : "false"}
+          minLength={8}
+          maxLength={16}
+          pattern={passwordPattern}
+          title={passwordRequirementText}
+          className={inputClass}
+        />
+      </label>
+      <p className="text-[11px] font-semibold leading-5 text-white/42 sm:col-span-2">{required ? passwordRequirementText : "Social sign-in detected. Password creation is optional for this application."}</p>
+    </div>
   );
 }
 function StepPanel({ active, children }: { active: boolean; children: ReactNode }) {

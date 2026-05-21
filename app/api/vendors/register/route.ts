@@ -15,6 +15,7 @@ export async function POST(request: Request) {
   const activeUser = authClient ? (await authClient.auth.getUser()).data.user : null;
   const email = String(formData.get("email") ?? activeUser?.email ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
   const ownerName = String(formData.get("ownerName") ?? activeUser?.user_metadata?.full_name ?? activeUser?.user_metadata?.name ?? "").trim();
 
   if (!email || !ownerName || (!activeUser && !password)) {
@@ -25,8 +26,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: passwordRequirementText }, { status: 400 });
   }
 
+  if (!activeUser && password !== confirmPassword) {
+    return NextResponse.json({ error: "Passwords must match before we can submit your vendor application." }, { status: 400 });
+  }
+
   if (formData.get("termsAccepted") !== "on") {
     return NextResponse.json({ error: "Please accept AduraMart vendor terms before submitting." }, { status: 400 });
+  }
+
+  const { data: existingVendor } = await supabase
+    .from("vendors")
+    .select("id, status")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (existingVendor) {
+    return NextResponse.json({ error: "This email already has a vendor application. Please sign in to continue with your existing account." }, { status: 409 });
   }
 
   let userId = activeUser?.id ?? null;
@@ -45,11 +60,22 @@ export async function POST(request: Request) {
       }
     });
 
-    if (authError && !authError.message.toLowerCase().includes("already")) {
+    if (authError) {
+      const message = authError.message.toLowerCase();
+      const duplicateEmail = message.includes("already") || message.includes("registered") || message.includes("exists");
+
+      if (duplicateEmail) {
+        return NextResponse.json({ error: "An account already exists with this email. Please sign in, then complete or manage your vendor profile." }, { status: 409 });
+      }
+
       return NextResponse.json({ error: authError.message }, { status: 400 });
     }
 
     userId = authData.user?.id ?? null;
+  }
+
+  if (!userId) {
+    return NextResponse.json({ error: "Your account could not be created. Please sign in if this email already exists." }, { status: 400 });
   }
 
   if (userId) {

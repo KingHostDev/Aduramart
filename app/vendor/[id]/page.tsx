@@ -53,7 +53,7 @@ export default async function VendorStorefront({ params }: { params: Promise<{ i
                   <Phone size={18} />
                   WhatsApp
                 </Link>
-                <Link href="/messages" className="inline-flex items-center gap-2 rounded-full border border-[#dcd1ff] bg-white px-5 py-3 font-extrabold">
+                <Link href={`/messages?to=vendor&vendorId=${vendor.id}&vendorName=${encodeURIComponent(vendor.storeName)}`} className="inline-flex items-center gap-2 rounded-full border border-[#dcd1ff] bg-white px-5 py-3 font-extrabold">
                   <MessageCircle size={18} />
                   Message
                 </Link>

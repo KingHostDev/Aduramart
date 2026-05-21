@@ -3,8 +3,8 @@ import { Footer } from "@/components/footer";
 import { ArrowRight, BadgeCheck, LockKeyhole, Mail, PackageCheck, ShieldCheck, Store } from "lucide-react";
 import { loginVendor } from "@/lib/actions";
 
-export default async function VendorLoginPage({ searchParams }: { searchParams?: Promise<{ recovered?: string }> }) {
-  const params = await (searchParams ?? Promise.resolve({} as { recovered?: string }));
+export default async function VendorLoginPage({ searchParams }: { searchParams?: Promise<{ recovered?: string; deleted?: string }> }) {
+  const params = await (searchParams ?? Promise.resolve({} as { recovered?: string; deleted?: string }));
   return (
     <>
       <main className="bg-[#202020] px-3 py-8 md:px-6 md:py-12">
@@ -50,6 +50,7 @@ export default async function VendorLoginPage({ searchParams }: { searchParams?:
                 </div>
 
                 {params.recovered ? <div className="mb-5 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm font-bold text-emerald-200">Password updated. Sign in with your new password.</div> : null}
+                {params.deleted ? <div className="mb-5 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm font-bold text-emerald-200">Your vendor account has been deleted.</div> : null}
 
                 <div className="grid gap-4">
                   <label className="grid gap-2 text-xs font-bold text-white/76">

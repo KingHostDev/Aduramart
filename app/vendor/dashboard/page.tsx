@@ -5,7 +5,7 @@ import { BarChart3, Box, CheckCircle2, Clock, EyeOff, Heart, MessageCircle, Pack
 import { DashboardLogout } from "@/components/dashboard-logout";
 import { Nav } from "@/components/nav";
 import { StatCard } from "@/components/ui";
-import { markVendorProductOutOfSale, removeVendorProduct, submitProductForReview, updateVendorBio } from "@/lib/actions";
+import { deleteVendorAccount, markVendorProductOutOfSale, removeVendorProduct, submitProductForReview, updateVendorBio } from "@/lib/actions";
 import { categories, formatNaira } from "@/lib/data";
 import { getVendorByUserId, getVendorOrders, getVendorProducts } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/server";
@@ -40,6 +40,7 @@ export default async function VendorDashboard() {
   const pendingProducts = vendorProducts.filter((product) => product.status === "pending").length;
   const revenue = vendorOrders.reduce((sum, order) => sum + order.total, 0);
   const canSubmitProducts = vendor.status === "approved";
+  const canManageStore = vendor.status !== "suspended";
 
   return (
     <>
@@ -59,10 +60,11 @@ export default async function VendorDashboard() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-            <ProductManagement products={vendorProducts} />
+            <ProductManagement products={vendorProducts} canManageStore={canManageStore} />
             <div className="grid gap-6">
-              <StoreBioForm vendor={vendor} />
+              <StoreBioForm vendor={vendor} canManageStore={canManageStore} />
               <SubmitListingForm vendor={vendor} canSubmitProducts={canSubmitProducts} />
+              <VendorAccountSettings vendor={vendor} />
             </div>
           </div>
 
@@ -138,7 +140,7 @@ function VendorStatusNotice({ vendor }: { vendor: Vendor }) {
     pending: [Clock, "Your store is pending admin review. You can view your profile, but product submission is locked until approval."],
     rejected: [ShieldAlert, "This vendor application was removed. Contact AduraMart support before submitting new listings."],
     hidden: [EyeOff, "Your store profile is hidden from the marketplace. Product submission is paused until admin restores visibility."],
-    suspended: [ShieldAlert, "Your store is suspended from posting. Existing approved listings may be restricted by admin review."],
+    suspended: [ShieldAlert, "Your store is suspended. Store edits, product changes, and posting are disabled. Contact AduraMart admin for review."],
     approved: [CheckCircle2, "Your store is approved. New products still enter admin review before public marketplace display."]
   } as const;
 
@@ -153,7 +155,7 @@ function VendorStatusNotice({ vendor }: { vendor: Vendor }) {
   );
 }
 
-function ProductManagement({ products }: { products: Product[] }) {
+function ProductManagement({ products, canManageStore }: { products: Product[]; canManageStore: boolean }) {
   return (
     <div className="card rounded-[22px] p-6">
       <h2 className="text-2xl font-black">Product management</h2>
@@ -170,23 +172,31 @@ function ProductManagement({ products }: { products: Product[] }) {
                   {product.status === "approved" ? <CheckCircle2 size={15} /> : <Clock size={15} />}
                   {product.status}
                 </span>
-                <Link href={`/vendor/products/${product.id}/edit`} className="rounded-full border border-[#dcd1ff] bg-white px-3 py-1 text-xs font-extrabold text-[#6C3CF0] transition hover:bg-[#F3EEFF]">
-                  Edit
-                </Link>
-                {product.status === "approved" ? (
-                  <form action={markVendorProductOutOfSale}>
-                    <input type="hidden" name="productId" value={product.id} />
-                    <button className="rounded-full border border-[#ffe1bd] bg-white px-3 py-1 text-xs font-extrabold text-[#B96312] transition hover:bg-[#FFF9F2]">
-                      Out of sale
-                    </button>
-                  </form>
-                ) : null}
-                <form action={removeVendorProduct}>
-                  <input type="hidden" name="productId" value={product.id} />
-                  <button className="rounded-full border border-[#ffd1d1] bg-white px-3 py-1 text-xs font-extrabold text-[#EF4444] transition hover:bg-[#fff1f1]">
-                    Remove
-                  </button>
-                </form>
+                {canManageStore ? (
+                  <>
+                    <Link href={`/vendor/products/${product.id}/edit`} className="rounded-full border border-[#dcd1ff] bg-white px-3 py-1 text-xs font-extrabold text-[#6C3CF0] transition hover:bg-[#F3EEFF]">
+                      Edit
+                    </Link>
+                    {product.status === "approved" ? (
+                      <form action={markVendorProductOutOfSale}>
+                        <input type="hidden" name="productId" value={product.id} />
+                        <button className="rounded-full border border-[#ffe1bd] bg-white px-3 py-1 text-xs font-extrabold text-[#B96312] transition hover:bg-[#FFF9F2]">
+                          Out of sale
+                        </button>
+                      </form>
+                    ) : null}
+                    <form action={removeVendorProduct}>
+                      <input type="hidden" name="productId" value={product.id} />
+                      <button className="rounded-full border border-[#ffd1d1] bg-white px-3 py-1 text-xs font-extrabold text-[#EF4444] transition hover:bg-[#fff1f1]">
+                        Remove
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <Link href="/messages?to=admin&topic=suspension" className="rounded-full border border-[#fed7aa] bg-white px-3 py-1 text-xs font-extrabold text-[#B96312] transition hover:bg-[#FFF9F2]">
+                    Contact admin
+                  </Link>
+                )}
               </div>
             </div>
           ))
@@ -200,8 +210,7 @@ function ProductManagement({ products }: { products: Product[] }) {
   );
 }
 
-
-function StoreBioForm({ vendor }: { vendor: Vendor }) {
+function StoreBioForm({ vendor, canManageStore }: { vendor: Vendor; canManageStore: boolean }) {
   return (
     <form action={updateVendorBio} className="card rounded-[22px] p-6">
       <div className="flex items-center gap-3">
@@ -210,14 +219,13 @@ function StoreBioForm({ vendor }: { vendor: Vendor }) {
       </div>
       <p className="mt-2 text-sm font-bold leading-7 text-[#6B7280]">Update the public story buyers see on your vendor profile anytime.</p>
       <input type="hidden" name="vendorId" value={vendor.id} />
-      <textarea name="description" rows={5} minLength={20} required defaultValue={vendor.description} className="mt-5 w-full rounded-2xl border border-[#ece6ff] px-4 py-3 text-sm font-semibold leading-7 outline-none focus:border-[#6C3CF0]" />
-      <button className="mt-4 rounded-full bg-[#6C3CF0] px-5 py-3 font-extrabold text-white shadow-lg shadow-purple-500/20">
-        Save bio
+      <textarea name="description" rows={5} minLength={20} required disabled={!canManageStore} defaultValue={vendor.description} className="mt-5 w-full rounded-2xl border border-[#ece6ff] px-4 py-3 text-sm font-semibold leading-7 outline-none focus:border-[#6C3CF0] disabled:bg-[#F9FAFB]" />
+      <button disabled={!canManageStore} className="mt-4 rounded-full bg-[#6C3CF0] px-5 py-3 font-extrabold text-white shadow-lg shadow-purple-500/20 disabled:bg-[#d8cef8]">
+        {canManageStore ? "Save bio" : "Suspended - contact admin"}
       </button>
     </form>
   );
-}
-function SubmitListingForm({ vendor, canSubmitProducts }: { vendor: Vendor; canSubmitProducts: boolean }) {
+}function SubmitListingForm({ vendor, canSubmitProducts }: { vendor: Vendor; canSubmitProducts: boolean }) {
   return (
     <form action={submitProductForReview} className="card rounded-[22px] p-6">
       <div className="flex items-center gap-3">
@@ -245,6 +253,19 @@ function SubmitListingForm({ vendor, canSubmitProducts }: { vendor: Vendor; canS
   );
 }
 
+function VendorAccountSettings({ vendor }: { vendor: Vendor }) {
+  return (
+    <section className="card rounded-[22px] border border-[#fecaca] p-6">
+      <h2 className="text-2xl font-black text-[#EF4444]">Delete account</h2>
+      <p className="mt-2 text-sm font-bold leading-7 text-[#6B7280]">You can permanently delete your vendor account, store profile, likes, and products. This cannot be undone.</p>
+      <form action={deleteVendorAccount} className="mt-5 grid gap-3">
+        <input type="hidden" name="vendorId" value={vendor.id} />
+        <input name="confirmation" placeholder="Type DELETE to confirm" className="rounded-2xl border border-[#fecaca] px-4 py-3 text-sm font-semibold outline-none focus:border-[#EF4444]" />
+        <button className="rounded-full bg-[#EF4444] px-5 py-3 font-extrabold text-white">Permanently delete my account</button>
+      </form>
+    </section>
+  );
+}
 function VendorNeedsOnboarding() {
   return (
     <>

@@ -73,6 +73,39 @@ export async function resetVendorPasswordWithOtp(formData: FormData) {
   await supabase.auth.signOut();
   redirect("/vendor-login?recovered=1");
 }
+export async function submitContactMessage(formData: FormData) {
+  const adminClient = createAdminClient();
+
+  if (!adminClient) {
+    redirect("/messages?sent=not-configured");
+  }
+
+  const senderEmail = String(formData.get("senderEmail") ?? "").trim().toLowerCase();
+  const senderName = String(formData.get("senderName") ?? "").trim();
+  const recipientType = String(formData.get("recipientType") ?? "admin") === "vendor" ? "vendor" : "admin";
+  const recipientId = String(formData.get("recipientId") ?? "").trim() || null;
+  const subject = String(formData.get("subject") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+
+  if (!senderEmail || !subject || body.length < 10) {
+    redirect(`/messages?to=${recipientType}&sent=incomplete`);
+  }
+
+  const { error } = await adminClient.from("messages").insert({
+    sender_email: senderEmail,
+    sender_name: senderName,
+    recipient_type: recipientType,
+    recipient_id: recipientId,
+    subject,
+    body
+  });
+
+  if (error) {
+    redirect(`/messages?to=${recipientType}&sent=failed`);
+  }
+
+  redirect(`/messages?to=${recipientType}&sent=1`);
+}
 export async function loginAdmin(formData: FormData) {
   const supabase = await createClient();
   const adminClient = createAdminClient();
@@ -280,6 +313,52 @@ export async function updateVendorBio(formData: FormData) {
 }
 
 
+export async function deleteVendorAccount(formData: FormData) {
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  if (!supabase || !adminClient) {
+    redirect("/vendor/dashboard?account=not-configured");
+  }
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) {
+    redirect("/vendor-login?error=login-required");
+  }
+
+  const vendorId = String(formData.get("vendorId") ?? "");
+  const confirmation = String(formData.get("confirmation") ?? "").trim().toUpperCase();
+
+  if (confirmation !== "DELETE") {
+    redirect("/vendor/dashboard?account=confirm-delete");
+  }
+
+  const { data: vendor } = await adminClient
+    .from("vendors")
+    .select("id, user_id")
+    .eq("id", vendorId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!vendor) {
+    redirect("/vendor/dashboard?account=not-authorized");
+  }
+
+  await adminClient.from("vendor_likes").delete().eq("vendor_id", vendorId);
+  await adminClient.from("products").delete().eq("vendor_id", vendorId);
+  const { error: vendorError } = await adminClient.from("vendors").delete().eq("id", vendorId);
+
+  if (vendorError) {
+    redirect("/vendor/dashboard?account=delete-failed");
+  }
+
+  await adminClient.from("profiles").delete().eq("id", user.id);
+  await adminClient.auth.admin.deleteUser(user.id);
+  await supabase.auth.signOut();
+  redirect("/vendor-login?deleted=1");
+}
 export async function removeVendorProduct(formData: FormData) {
   const supabase = await createClient();
   const adminClient = createAdminClient();
