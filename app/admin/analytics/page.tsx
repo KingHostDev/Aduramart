@@ -1,6 +1,5 @@
 import { Activity, BadgeCheck, Clock, PackageCheck, ShieldCheck, ShoppingBag, Store, TrendingUp } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Nav } from "@/components/nav";
 import { StatCard } from "@/components/ui";
 import { formatNaira } from "@/lib/data";
 import { getAdminOrders, getApprovedProducts, getApprovedVendors, getPendingProducts, getPendingVendors } from "@/lib/queries";
@@ -20,12 +19,11 @@ export default async function AdminAnalyticsPage() {
   const deliveredOrders = orders.filter((order) => order.status === "delivered").length;
 
   return (
-    <>
-      <Nav />
-      <main className="container grid gap-6 py-8 lg:grid-cols-[260px_1fr]">
+    <main className="admin-shell">
+      <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
-          <div className="soft-gradient rounded-[28px] p-6 md:p-8">
+          <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Analytics</p>
             <h1 className="mt-3 text-4xl font-black">Every part of AduraMart at a glance.</h1>
             <p className="mt-3 max-w-3xl leading-8 text-[#6B7280]">Track marketplace growth, vendor trust, listing moderation, order movement, and platform health from one admin page.</p>
@@ -47,7 +45,7 @@ export default async function AdminAnalyticsPage() {
               [Clock, "Review speed", "Pending counts show how much approval work is waiting. Lower pending queues mean vendors can launch faster."],
               [TrendingUp, "Growth signal", "Vendor and product totals show marketplace depth, category coverage, and buyer discovery strength."]
             ].map(([Icon, title, copy]) => (
-              <article key={title as string} className="card rounded-[18px] p-6">
+              <article key={title as string} className="admin-metric-card">
                 <Icon className="text-[#6C3CF0]" />
                 <h2 className="mt-4 text-xl font-black">{title as string}</h2>
                 <p className="mt-3 text-sm font-bold leading-7 text-[#6B7280]">{copy as string}</p>
@@ -55,7 +53,7 @@ export default async function AdminAnalyticsPage() {
             ))}
           </div>
 
-          <div className="card rounded-[22px] p-6">
+          <div className="admin-card">
             <div className="flex items-center gap-3">
               <Activity className="text-[#6C3CF0]" />
               <h2 className="text-2xl font-black">Operational checklist</h2>
@@ -77,7 +75,7 @@ export default async function AdminAnalyticsPage() {
             </div>
           </div>
         </section>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }

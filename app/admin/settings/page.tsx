@@ -1,17 +1,15 @@
 import { Bell, ListChecks, ShieldCheck, Star, UserCog } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Nav } from "@/components/nav";
 import { requireAdminPage } from "@/lib/admin-auth";
 
 export default async function AdminSettingsPage() {
   await requireAdminPage();
   return (
-    <>
-      <Nav />
-      <main className="container grid gap-6 py-8 lg:grid-cols-[260px_1fr]">
+    <main className="admin-shell">
+      <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
-          <div className="soft-gradient rounded-[28px] p-6 md:p-8">
+          <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Admin settings</p>
             <h1 className="mt-3 text-4xl font-black">Platform controls.</h1>
             <p className="mt-3 max-w-3xl leading-8 text-[#6B7280]">Define how AduraMart reviews vendors, accepts listings, features trusted stores, and notifies admins.</p>
@@ -24,7 +22,7 @@ export default async function AdminSettingsPage() {
               [Bell, "Notification rules", "Send admins alerts when vendors register, products are submitted, or reports are created."],
               [UserCog, "Admin roles", "Use Supabase profiles with role admin before giving access to dashboard pages."]
             ].map(([Icon, title, copy]) => (
-              <article key={title as string} className="card rounded-[18px] p-6">
+              <article key={title as string} className="admin-metric-card">
                 <Icon className="text-[#6C3CF0]" />
                 <h2 className="mt-4 text-xl font-black">{title as string}</h2>
                 <p className="mt-3 text-sm font-bold leading-7 text-[#6B7280]">{copy as string}</p>
@@ -32,7 +30,7 @@ export default async function AdminSettingsPage() {
             ))}
           </div>
         </section>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }

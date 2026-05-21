@@ -1,6 +1,5 @@
 import { Mail, MessageCircle, UserRound } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Nav } from "@/components/nav";
 import { requireAdminPage } from "@/lib/admin-auth";
 import { getAdminMessages } from "@/lib/queries";
 
@@ -9,12 +8,11 @@ export default async function AdminMessagesPage() {
   const messages = await getAdminMessages();
 
   return (
-    <>
-      <Nav />
-      <main className="container grid gap-6 py-8 lg:grid-cols-[260px_1fr]">
+    <main className="admin-shell">
+      <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
-          <div className="soft-gradient rounded-[28px] p-6 md:p-8">
+          <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Messages</p>
             <h1 className="mt-3 text-4xl font-black">Buyer, vendor, and admin conversations.</h1>
             <p className="mt-3 max-w-3xl leading-8 text-[#6B7280]">Messages submitted from vendor profiles, buyer support, and suspended vendor contact forms appear here for admin follow-up.</p>
@@ -26,7 +24,7 @@ export default async function AdminMessagesPage() {
             <Metric title="To vendors" value={messages.filter((message) => message.recipientType === "vendor").length} />
           </div>
 
-          <section className="card rounded-[22px] p-5 md:p-6">
+          <section className="admin-card">
             <div className="flex items-center gap-3">
               <MessageCircle className="text-[#6C3CF0]" />
               <h2 className="text-2xl font-black">Message inbox</h2>
@@ -56,14 +54,14 @@ export default async function AdminMessagesPage() {
             </div>
           </section>
         </section>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 
 function Metric({ title, value }: { title: string; value: number }) {
   return (
-    <article className="card rounded-[18px] p-5">
+    <article className="admin-metric-card">
       <p className="text-sm font-extrabold text-[#6B7280]">{title}</p>
       <p className="mt-3 text-3xl font-black text-[#6C3CF0]">{value}</p>
     </article>

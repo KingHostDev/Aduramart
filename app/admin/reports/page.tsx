@@ -1,17 +1,15 @@
 import { AlertTriangle, BadgeCheck, MessageSquareWarning, ShieldAlert } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Nav } from "@/components/nav";
 import { requireAdminPage } from "@/lib/admin-auth";
 
 export default async function AdminReportsPage() {
   await requireAdminPage();
   return (
-    <>
-      <Nav />
-      <main className="container grid gap-6 py-8 lg:grid-cols-[260px_1fr]">
+    <main className="admin-shell">
+      <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
-          <div className="soft-gradient rounded-[28px] p-6 md:p-8">
+          <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Reports</p>
             <h1 className="mt-3 text-4xl font-black">Trust and safety reports.</h1>
             <p className="mt-3 max-w-3xl leading-8 text-[#6B7280]">Track flagged vendors, suspicious listings, buyer complaints, and moderation follow-ups.</p>
@@ -22,14 +20,14 @@ export default async function AdminReportsPage() {
               [ShieldAlert, "Product reports", "Flags about unsafe, duplicate, misleading, or unapproved listings."],
               [MessageSquareWarning, "Message reports", "Buyer/vendor conversations that need admin attention."]
             ].map(([Icon, title, copy]) => (
-              <article key={title as string} className="card rounded-[18px] p-6">
+              <article key={title as string} className="admin-metric-card">
                 <Icon className="text-[#EF4444]" />
                 <h2 className="mt-4 text-xl font-black">{title as string}</h2>
                 <p className="mt-3 text-sm font-bold leading-7 text-[#6B7280]">{copy as string}</p>
               </article>
             ))}
           </div>
-          <div className="card rounded-[22px] p-6">
+          <div className="admin-card">
             <div className="flex items-center gap-3">
               <BadgeCheck className="text-[#22C55E]" />
               <h2 className="text-2xl font-black">Report queue</h2>
@@ -37,7 +35,7 @@ export default async function AdminReportsPage() {
             <p className="mt-3 text-sm font-bold leading-7 text-[#6B7280]">No active reports right now. Once users begin reporting vendors, products, or messages, the queue should show reporter, reason, linked record, priority, and admin action.</p>
           </div>
         </section>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }

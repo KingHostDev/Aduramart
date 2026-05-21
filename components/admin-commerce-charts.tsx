@@ -40,7 +40,7 @@ export function AdminCommerceCharts({
 }) {
   return (
     <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-      <div className="card rounded-[24px] p-6">
+      <div className="admin-card">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#6C3CF0]">Revenue trend</p>
@@ -57,7 +57,7 @@ export function AdminCommerceCharts({
                   <stop offset="95%" stopColor="#6C3CF0" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="#ECE6FF" vertical={false} />
+              <CartesianGrid stroke="rgba(108,60,240,0.16)" vertical={false} />
               <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fill: "#6B7280", fontSize: 12, fontWeight: 700 }} />
               <YAxis tickLine={false} axisLine={false} tick={{ fill: "#6B7280", fontSize: 12, fontWeight: 700 }} />
               <Tooltip contentStyle={{ border: "1px solid #ECE6FF", borderRadius: 16, boxShadow: "0 18px 40px rgba(72, 41, 132, 0.12)" }} />
@@ -72,7 +72,7 @@ export function AdminCommerceCharts({
         <SmallChart title="Order statuses" data={orderStatusData} />
       </div>
 
-      <div className="card rounded-[24px] p-6 xl:col-span-2">
+      <div className="admin-card xl:col-span-2">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#6C3CF0]">Category mix</p>
@@ -82,7 +82,7 @@ export function AdminCommerceCharts({
         <div className="mt-6 h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={categoryData} margin={{ left: 0, right: 10, top: 10, bottom: 0 }}>
-              <CartesianGrid stroke="#ECE6FF" vertical={false} />
+              <CartesianGrid stroke="rgba(108,60,240,0.16)" vertical={false} />
               <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fill: "#6B7280", fontSize: 12, fontWeight: 700 }} />
               <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: "#6B7280", fontSize: 12, fontWeight: 700 }} />
               <Tooltip contentStyle={{ border: "1px solid #ECE6FF", borderRadius: 16, boxShadow: "0 18px 40px rgba(72, 41, 132, 0.12)" }} />
@@ -97,7 +97,7 @@ export function AdminCommerceCharts({
 
 function SmallChart({ title, data }: { title: string; data: ChartPoint[] }) {
   return (
-    <div className="card rounded-[24px] p-6">
+    <div className="admin-card">
       <h2 className="text-xl font-black">{title}</h2>
       <div className="mt-4 grid gap-4 sm:grid-cols-[180px_1fr] xl:grid-cols-1 2xl:grid-cols-[180px_1fr]">
         <div className="h-44">

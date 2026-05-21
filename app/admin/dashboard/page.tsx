@@ -3,14 +3,13 @@ import {
   ArrowRight,
   BadgeCheck,
   BellRing,
-  Boxes,
   CheckCircle2,
   Clock3,
   Eye,
-  Landmark,
   MessageCircle,
   PackageCheck,
   PackageSearch,
+  Search,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
@@ -20,9 +19,9 @@ import {
   WalletCards
 } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminThemeToggle } from "@/components/admin-theme-toggle";
 import { AdminCommerceCharts } from "@/components/admin-commerce-charts";
 import { AdminModerationPanel } from "@/components/admin-moderation-panel";
-import { Nav } from "@/components/nav";
 import { formatNaira } from "@/lib/data";
 import {
   getAdminMessages,
@@ -40,7 +39,7 @@ import { requireAdminPage } from "@/lib/admin-auth";
 const orderStages = ["placed", "confirmed", "packed", "in-transit", "delivered"] as const;
 
 export default async function AdminDashboard() {
-  await requireAdminPage();
+  const admin = await requireAdminPage();
   const [approvedVendors, pendingVendors, rejectedVendors, approvedProducts, pendingProducts, rejectedProducts, orders, messages] = await Promise.all([
     getApprovedVendors(),
     getPendingVendors(),
@@ -61,7 +60,7 @@ export default async function AdminDashboard() {
   const listingApprovalRate = percentage(approvedProducts.length, allProducts.length);
   const trustScore = allVendors.length || allProducts.length ? Math.round((vendorApprovalRate + listingApprovalRate) / 2) : 0;
   const categories = buildCategoryStats(allProducts);
-  const recentOrders = orders.slice(0, 4);
+  const recentOrders = orders.slice(0, 5);
   const revenueData = buildRevenueData(orders);
   const orderStatusData = orderStages.map((stage) => ({ name: stage.replace("-", " "), value: orders.filter((order) => order.status === stage).length }));
   const reviewData = [
@@ -70,156 +69,136 @@ export default async function AdminDashboard() {
     { name: "Rejected", value: rejectedVendors.length + rejectedProducts.length }
   ];
   const categoryChartData = categories.map((category) => ({ name: category.name, value: category.count }));
+  const newMessages = messages.filter((message) => message.status === "new");
 
   return (
-    <>
-      <Nav />
-      <main className="container grid gap-6 py-8 lg:grid-cols-[280px_1fr]">
+    <main className="admin-shell">
+      <div className="admin-workspace">
         <AdminSidebar />
-        <section className="grid gap-6">
-          <div className="relative overflow-hidden rounded-[30px] border border-[#e8ddff] bg-white p-6 shadow-2xl shadow-purple-500/10 md:p-8">
-            <div className="absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(circle_at_top_right,rgba(108,60,240,0.18),transparent_28rem)]" />
-            <div className="relative grid gap-8 xl:grid-cols-[1fr_420px]">
-              <div>
-                <p className="inline-flex items-center gap-2 rounded-full bg-[#F3EEFF] px-4 py-2 text-sm font-extrabold text-[#6C3CF0]">
-                  <Sparkles size={16} />
-                  Admin command center
-                </p>
-                <h1 className="mt-5 max-w-3xl text-4xl font-black tracking-tight md:text-6xl">Run AduraMart with calm, clear control.</h1>
-                <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-[#6B7280]">
-                  Monitor revenue, orders, vendors, product moderation, trust signals, and pending review work from the database-backed admin dashboard.
-                </p>
-                <div className="mt-7 flex flex-wrap gap-3">
-                  <Link href="/admin/vendors" className="inline-flex items-center gap-2 rounded-full bg-[#6C3CF0] px-5 py-3 text-sm font-extrabold text-white shadow-lg shadow-purple-500/20 transition hover:bg-[#5b2fe0]">
-                    Review vendors
-                    <ArrowRight size={17} />
-                  </Link>
-                  <Link href="/admin/products" className="inline-flex items-center gap-2 rounded-full border border-[#dcd1ff] bg-white px-5 py-3 text-sm font-extrabold text-[#6C3CF0] transition hover:bg-[#F3EEFF]">
-                    Moderate products
-                    <PackageSearch size={17} />
+
+        <section className="grid gap-5">
+          <header className="admin-topbar">
+            <div className="admin-pill-tabs" aria-label="Admin sections">
+              <Link href="/admin/dashboard" className="is-active">Dashboard</Link>
+              <Link href="/admin/vendors">Vendors</Link>
+              <Link href="/admin/products">Products</Link>
+              <Link href="/admin/messages">Messages</Link>
+              <Link href="/admin/team">Team</Link>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="hidden items-center gap-2 rounded-full bg-[#f4f4f1] px-4 py-3 text-sm font-extrabold text-[#6B7280] xl:flex">
+                <Search size={16} />
+                <span>Search orders, vendors, products</span>
+              </label>
+              <AdminThemeToggle />
+              <Link href="/admin/messages" className="admin-icon-button relative" aria-label="Open admin messages">
+                <BellRing size={18} />
+                {newMessages.length ? <span className="absolute right-2 top-2 size-2 rounded-full bg-[#EF4444]" /> : null}
+              </Link>
+              <div className="hidden items-center gap-3 rounded-full bg-[#111111] py-2 pl-2 pr-4 text-white md:flex">
+                <span className="grid size-10 place-items-center rounded-full bg-[#6C3CF0] text-sm font-black">{admin.fullName.slice(0, 1).toUpperCase()}</span>
+                <span>
+                  <span className="block text-sm font-black">{admin.fullName}</span>
+                  <span className="block text-xs font-bold capitalize text-white/70">{admin.role.replace("_", " ")}</span>
+                </span>
+              </div>
+            </div>
+          </header>
+
+          <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
+            <div className="admin-card relative overflow-hidden p-7 md:p-8">
+              <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-[#6C3CF0]/10 blur-3xl" />
+              <div className="relative flex flex-wrap items-start justify-between gap-6">
+                <div>
+                  <p className="inline-flex items-center gap-2 rounded-full bg-[#F3EEFF] px-4 py-2 text-sm font-extrabold text-[#6C3CF0]">
+                    <Sparkles size={16} />
+                    Admin command center
+                  </p>
+                  <h1 className="mt-5 max-w-3xl text-4xl font-black tracking-tight md:text-6xl">Welcome back, {firstName(admin.fullName)}.</h1>
+                  <p className="mt-4 max-w-2xl text-base font-semibold leading-8 text-[#6B7280]">
+                    Review marketplace trust, vendor applications, product submissions, orders, and messages without changing the database structure behind AduraMart.
+                  </p>
+                </div>
+                <div className="grid min-w-64 gap-3 rounded-[26px] bg-[#111111] p-4 text-white shadow-2xl shadow-black/10">
+                  <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-white/55">Today&apos;s queue</p>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <QueuePill label="Vendors" value={pendingVendors.length} />
+                    <QueuePill label="Listings" value={pendingProducts.length} />
+                    <QueuePill label="Messages" value={newMessages.length} />
+                  </div>
+                  <Link href="/admin/products" className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#6C3CF0] px-4 py-3 text-sm font-black text-white transition hover:bg-[#5b2fe0]">
+                    Start review
+                    <ArrowRight size={16} />
                   </Link>
                 </div>
               </div>
-
-              <div className="grid gap-4 rounded-[24px] border border-[#ece6ff] bg-[#FFF9F2]/80 p-5">
-                <MiniMetric label="Review load" value={String(reviewLoad)} note="vendors + listings waiting" icon={<Clock3 size={18} />} />
-                <MiniMetric label="Live vendors" value={String(approvedVendors.length)} note={`${vendorApprovalRate}% approval health`} icon={<Store size={18} />} />
-                <MiniMetric label="Live products" value={String(approvedProducts.length)} note={`${listingApprovalRate}% listing health`} icon={<Boxes size={18} />} />
-              </div>
             </div>
-          </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            <DashboardMetric title="Revenue" value={formatNaira(revenue)} detail={`${orders.length} orders captured`} icon={<WalletCards />} tone="purple" />
-            <DashboardMetric title="Average order" value={formatNaira(averageOrder)} detail="Order value signal" icon={<ShoppingBag />} tone="gold" />
-            <DashboardMetric title="Pending reviews" value={String(reviewLoad)} detail={`${pendingVendors.length} vendors, ${pendingProducts.length} listings`} icon={<BellRing />} tone="red" />
-            <DashboardMetric title="Messages" value={String(messages.length)} detail={`${messages.filter((message) => message.status === "new").length} new inbox items`} icon={<MessageCircle />} tone="purple" />
-            <DashboardMetric title="Trust score" value={`${trustScore}%`} detail="Verification + listing health" icon={<ShieldCheck />} tone="green" />
-          </div>
+            <aside className="admin-card grid gap-4 p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[0.16em] text-[#6C3CF0]">Pulse</p>
+                  <h2 className="mt-1 text-2xl font-black">Marketplace health</h2>
+                </div>
+                <TrendingUp className="text-[#22C55E]" />
+              </div>
+              <HealthLine label="Vendor approval" value={vendorApprovalRate} />
+              <HealthLine label="Listing approval" value={listingApprovalRate} />
+              <HealthLine label="Trust score" value={trustScore} />
+            </aside>
+          </section>
+
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            <DashboardMetric title="Revenue" value={formatNaira(revenue)} detail={`${orders.length} orders`} icon={<WalletCards />} tone="purple" />
+            <DashboardMetric title="Average order" value={formatNaira(averageOrder)} detail="Buyer value" icon={<ShoppingBag />} tone="gold" />
+            <DashboardMetric title="Review queue" value={String(reviewLoad)} detail="Needs action" icon={<BellRing />} tone="red" />
+            <DashboardMetric title="Messages" value={String(messages.length)} detail={`${newMessages.length} unread`} icon={<MessageCircle />} tone="purple" />
+            <DashboardMetric title="Trust score" value={`${trustScore}%`} detail="Approval health" icon={<ShieldCheck />} tone="green" />
+          </section>
 
           <AdminCommerceCharts revenueData={revenueData} orderStatusData={orderStatusData} categoryData={categoryChartData} reviewData={reviewData} />
 
-          <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-            <section className="card rounded-[24px] p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4">
+          <section className="grid gap-5 xl:grid-cols-[1fr_360px]">
+            <div className="admin-card">
+              <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#6C3CF0]">Marketplace pulse</p>
-                  <h2 className="mt-2 text-2xl font-black">Vendor and listing health</h2>
+                  <p className="text-sm font-black uppercase tracking-[0.16em] text-[#6C3CF0]">Recent orders</p>
+                  <h2 className="mt-1 text-2xl font-black">Commerce activity</h2>
                 </div>
                 <Link href="/admin/analytics" className="rounded-full border border-[#dcd1ff] px-4 py-2 text-sm font-extrabold text-[#6C3CF0] transition hover:bg-[#F3EEFF]">Open analytics</Link>
               </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <StatusBreakdown title="Vendor verification" approved={approvedVendors.length} pending={pendingVendors.length} rejected={rejectedVendors.length} />
-                <StatusBreakdown title="Product moderation" approved={approvedProducts.length} pending={pendingProducts.length} rejected={rejectedProducts.length} />
-              </div>
-              <div className="mt-6 rounded-[20px] border border-[#ece6ff] bg-white p-5">
-                <h3 className="font-black">Category coverage</h3>
-                <div className="mt-4 grid gap-4">
-                  {categories.map((category) => (
-                    <div key={category.name}>
-                      <div className="mb-2 flex items-center justify-between text-sm font-extrabold">
-                        <span>{category.name}</span>
-                        <span className="text-[#6B7280]">{category.count}</span>
-                      </div>
-                      <div className="h-3 overflow-hidden rounded-full bg-[#F3EEFF]">
-                        <div className="h-full rounded-full bg-[#6C3CF0]" style={{ width: `${category.width}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section className="card rounded-[24px] p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#6C3CF0]">Orders</p>
-                  <h2 className="mt-2 text-2xl font-black">Fulfillment flow</h2>
-                </div>
-                <PackageCheck className="text-[#6C3CF0]" />
-              </div>
-              <div className="mt-6 grid gap-3">
-                {orderStages.map((stage) => {
-                  const count = orders.filter((order) => order.status === stage).length;
-                  return (
-                    <div key={stage} className="rounded-2xl border border-[#ece6ff] bg-white p-4">
-                      <div className="flex items-center justify-between text-sm font-extrabold capitalize">
-                        <span>{stage.replace("-", " ")}</span>
-                        <span className="text-[#6C3CF0]">{count}</span>
-                      </div>
-                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#F3EEFF]">
-                        <div className="h-full rounded-full bg-[#FFB86B]" style={{ width: `${percentage(count, Math.max(orders.length, 1))}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          </div>
-
-          <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-            <section className="card rounded-[24px] p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#6C3CF0]">Recent orders</p>
-                  <h2 className="mt-2 text-2xl font-black">Revenue activity</h2>
-                </div>
-                <Landmark className="text-[#FFB86B]" />
-              </div>
               <div className="mt-5 grid gap-3">
-                {recentOrders.map((order) => (
-                  <div key={order.id} className="grid gap-3 rounded-2xl border border-[#ece6ff] bg-white p-4 sm:grid-cols-[1fr_auto]">
+                {recentOrders.length ? recentOrders.map((order) => (
+                  <div key={order.id} className="admin-data-row grid gap-3 md:grid-cols-[1fr_0.7fr_0.6fr_auto] md:items-center">
                     <div>
-                      <p className="font-black">{order.id}</p>
-                      <p className="text-sm font-bold text-[#6B7280]">{order.customer} · <span className="capitalize">{order.status.replace("-", " ")}</span></p>
+                      <p className="font-black">{order.customer}</p>
+                      <p className="text-sm font-bold text-[#6B7280]">Order {order.id}</p>
                     </div>
+                    <p className="text-sm font-extrabold capitalize text-[#6B7280]">{order.status.replace("-", " ")}</p>
+                    <p className="text-sm font-extrabold text-[#6B7280]">{order.eta}</p>
                     <p className="font-black text-[#6C3CF0]">{formatNaira(order.total)}</p>
                   </div>
-                ))}
+                )) : <EmptyState message="No live orders yet." />}
               </div>
-            </section>
+            </div>
 
-            <section className="card rounded-[24px] p-6">
-              <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="admin-card">
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#6C3CF0]">Priority queue</p>
-                  <h2 className="mt-2 text-2xl font-black">Needs admin attention</h2>
+                  <p className="text-sm font-black uppercase tracking-[0.16em] text-[#6C3CF0]">Notifications</p>
+                  <h2 className="mt-1 text-2xl font-black">Needs attention</h2>
                 </div>
-                <Link href="/admin/messages" className="inline-flex items-center gap-2 rounded-full border border-[#dcd1ff] px-4 py-2 text-sm font-extrabold text-[#6C3CF0] transition hover:bg-[#F3EEFF]">
-                  Open messages
-                  <Eye size={16} />
-                </Link>
+                <BellRing className="text-[#6C3CF0]" />
               </div>
               <div className="mt-5 grid gap-3">
-                {pendingVendors.slice(0, 3).map((vendor) => (
-                  <PriorityVendor key={vendor.id} vendor={vendor} />
-                ))}
-                {pendingVendors.length === 0 ? <EmptyState message="No vendors waiting for approval." /> : null}
+                <Notice icon={<UsersRound size={18} />} title={`${pendingVendors.length} vendor applications`} copy="Review identity, store details, and visibility before approval." href="/admin/vendors" />
+                <Notice icon={<PackageSearch size={18} />} title={`${pendingProducts.length} product listings`} copy="Open each post and check all submitted product images." href="/admin/products" />
+                <Notice icon={<MessageCircle size={18} />} title={`${newMessages.length} new messages`} copy="Buyer, vendor, and admin contact messages are collected here." href="/admin/messages" />
               </div>
-            </section>
-          </div>
+            </div>
+          </section>
 
-          <div className="grid gap-6 xl:grid-cols-2">
+          <section className="grid gap-5 xl:grid-cols-2">
             <AdminModerationPanel
               title="Vendor approvals"
               type="vendors"
@@ -234,13 +213,14 @@ export default async function AdminDashboard() {
               type="products"
               rows={pendingProducts.map((product) => ({
                 id: product.id,
-                cells: [product.name, product.vendorName, product.category]
+                cells: [product.name, product.vendorName, product.category],
+                detailsHref: `/admin/products/${product.id}`
               }))}
             />
-          </div>
+          </section>
         </section>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 
@@ -253,8 +233,8 @@ function DashboardMetric({ title, value, detail, icon, tone }: { title: string; 
   };
 
   return (
-    <article className="card rounded-[22px] p-5">
-      <div className="flex items-start justify-between gap-4">
+    <article className="admin-metric-card">
+      <div className="relative z-10 flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-extrabold text-[#6B7280]">{title}</p>
           <p className="mt-3 text-3xl font-black tracking-tight">{value}</p>
@@ -266,61 +246,50 @@ function DashboardMetric({ title, value, detail, icon, tone }: { title: string; 
   );
 }
 
-function MiniMetric({ label, value, note, icon }: { label: string; value: string; note: string; icon: React.ReactNode }) {
+function QueuePill({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm">
-      <span className="grid size-11 place-items-center rounded-2xl bg-[#F3EEFF] text-[#6C3CF0]">{icon}</span>
-      <div>
-        <p className="text-sm font-extrabold text-[#6B7280]">{label}</p>
-        <p className="text-2xl font-black">{value}</p>
-        <p className="text-xs font-bold text-[#9CA3AF]">{note}</p>
+    <div className="rounded-2xl bg-white/10 p-3">
+      <p className="text-2xl font-black">{value}</p>
+      <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-white/55">{label}</p>
+    </div>
+  );
+}
+
+function HealthLine({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between text-sm font-black">
+        <span>{label}</span>
+        <span className="text-[#6C3CF0]">{value}%</span>
+      </div>
+      <div className="h-3 overflow-hidden rounded-full bg-[#F3EEFF]">
+        <div className="h-full rounded-full bg-[#111111]" style={{ width: `${Math.max(value, 3)}%` }} />
       </div>
     </div>
   );
 }
 
-function StatusBreakdown({ title, approved, pending, rejected }: { title: string; approved: number; pending: number; rejected: number }) {
-  const total = Math.max(approved + pending + rejected, 1);
+function Notice({ icon, title, copy, href }: { icon: React.ReactNode; title: string; copy: string; href: string }) {
   return (
-    <div className="rounded-[20px] border border-[#ece6ff] bg-white p-5">
-      <h3 className="font-black">{title}</h3>
-      <div className="mt-5 flex h-3 overflow-hidden rounded-full bg-[#F3EEFF]">
-        <span className="bg-[#22C55E]" style={{ width: `${percentage(approved, total)}%` }} />
-        <span className="bg-[#FFB86B]" style={{ width: `${percentage(pending, total)}%` }} />
-        <span className="bg-[#EF4444]" style={{ width: `${percentage(rejected, total)}%` }} />
-      </div>
-      <div className="mt-5 grid grid-cols-3 gap-2 text-center text-sm font-extrabold">
-        <div className="rounded-2xl bg-[#EAFBF1] p-3 text-[#16803E]"><CheckCircle2 className="mx-auto mb-1" size={16} />{approved} live</div>
-        <div className="rounded-2xl bg-[#FFF1DF] p-3 text-[#B96312]"><Clock3 className="mx-auto mb-1" size={16} />{pending} pending</div>
-        <div className="rounded-2xl bg-[#fff1f1] p-3 text-[#EF4444]"><BadgeCheck className="mx-auto mb-1" size={16} />{rejected} rejected</div>
-      </div>
-    </div>
-  );
-}
-
-function PriorityVendor({ vendor }: { vendor: Vendor }) {
-  return (
-    <Link href={`/admin/vendors/${vendor.id}`} className="grid gap-3 rounded-2xl border border-[#ece6ff] bg-white p-4 transition hover:bg-[#F3EEFF]/50 sm:grid-cols-[1fr_auto]">
-      <div>
-        <p className="font-black">{vendor.storeName}</p>
-        <p className="text-sm font-bold text-[#6B7280]">{vendor.ownerName} · {vendor.category}</p>
-      </div>
-      <span className="inline-flex items-center gap-2 rounded-full bg-[#FFF1DF] px-3 py-2 text-xs font-extrabold text-[#B96312]">
-        Review
-        <ArrowRight size={14} />
+    <Link href={href} className="admin-data-row flex gap-3 transition hover:-translate-y-0.5 hover:border-[#6C3CF0]/30">
+      <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#F3EEFF] text-[#6C3CF0]">{icon}</span>
+      <span>
+        <span className="block font-black">{title}</span>
+        <span className="mt-1 block text-sm font-bold leading-6 text-[#6B7280]">{copy}</span>
       </span>
     </Link>
   );
 }
 
 function EmptyState({ message }: { message: string }) {
-  return <div className="rounded-2xl border border-[#ece6ff] bg-white p-5 text-sm font-bold text-[#6B7280]">{message}</div>;
+  return <div className="admin-data-row text-sm font-bold text-[#6B7280]">{message}</div>;
 }
 
 function buildRevenueData(orders: { id: string; total: number }[]) {
   const points = orders.slice(0, 8).reverse().map((order) => ({ name: order.id, revenue: order.total }));
   return points.length ? points : [{ name: "No orders", revenue: 0 }];
 }
+
 function buildCategoryStats(products: Product[]) {
   const counts = products.reduce<Record<string, number>>((acc, product) => {
     acc[product.category] = (acc[product.category] ?? 0) + 1;
@@ -342,4 +311,8 @@ function percentage(value: number, total: number) {
   }
 
   return Math.round((value / total) * 100);
+}
+
+function firstName(name: string) {
+  return name.trim().split(/\s+/)[0] || "Admin";
 }

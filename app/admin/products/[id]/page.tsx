@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ArrowLeft, BadgeCheck, Boxes, FileText, ImageIcon, PackageCheck, Store } from "lucide-react";
 import { AdminDecisionButtons } from "@/components/admin-decision-buttons";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Nav } from "@/components/nav";
 import { formatNaira } from "@/lib/data";
 import { getAdminProductById } from "@/lib/queries";
 import { requireAdminPage } from "@/lib/admin-auth";
@@ -15,26 +14,20 @@ export default async function AdminProductReview({ params }: { params: Promise<{
 
   if (!product) {
     return (
-      <>
-        <Nav />
-        <main className="container py-12">
+      <main className="admin-shell"><div className="admin-workspace"><AdminSidebar /><section className="grid gap-6">
           <Link href="/admin/products" className="inline-flex items-center gap-2 text-sm font-extrabold text-[#6C3CF0]">
             <ArrowLeft size={17} />
             Back to products
           </Link>
-          <div className="card mt-6 rounded-[24px] p-8">
+          <div className="admin-card mt-6">
             <h1 className="text-3xl font-black">Product not found</h1>
             <p className="mt-3 text-[#6B7280]">This submitted product may have been removed or the record could not be loaded.</p>
-          </div>
-        </main>
-      </>
+          </div></section></div></main>
     );
   }
 
   return (
-    <>
-      <Nav />
-      <main className="container grid gap-6 py-8 lg:grid-cols-[260px_1fr]">
+    <main className="admin-shell"><div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
           <Link href="/admin/products" className="inline-flex w-fit items-center gap-2 text-sm font-extrabold text-[#6C3CF0]">
@@ -42,7 +35,7 @@ export default async function AdminProductReview({ params }: { params: Promise<{
             Back to products
           </Link>
 
-          <div className="soft-gradient rounded-[28px] p-6 md:p-8">
+          <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Listing review</p>
             <h1 className="mt-3 text-4xl font-black">{product.name}</h1>
             <p className="mt-3 max-w-3xl leading-8 text-[#6B7280]">Review exactly what the vendor submitted. Admins can approve or reject, but this view does not edit vendor content.</p>
@@ -50,7 +43,7 @@ export default async function AdminProductReview({ params }: { params: Promise<{
 
           <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
             <div className="grid gap-6">
-              <section className="card rounded-[24px] p-4">
+              <section className="admin-card p-4">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] bg-[#F3EEFF]">
                   <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" priority />
                 </div>
@@ -102,7 +95,7 @@ export default async function AdminProductReview({ params }: { params: Promise<{
               </ReviewSection>
             </div>
 
-            <aside className="card h-fit rounded-[24px] p-6">
+            <aside className="admin-card h-fit">
               <div className="flex items-center gap-3">
                 <ImageIcon className="text-[#6C3CF0]" />
                 <h2 className="text-2xl font-black">Admin decision</h2>
@@ -115,15 +108,13 @@ export default async function AdminProductReview({ params }: { params: Promise<{
               <AdminDecisionButtons type="products" id={product.id} status={product.status} />
             </aside>
           </div>
-        </section>
-      </main>
-    </>
+        </section></div></main>
   );
 }
 
 function ReviewSection({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="card rounded-[24px] p-6">
+    <section className="admin-card">
       <div className="mb-5 flex items-center gap-3">
         {icon}
         <h2 className="text-2xl font-black">{title}</h2>

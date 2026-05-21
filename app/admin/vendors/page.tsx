@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, Eye, EyeOff, ShieldOff, Store, Trash2 } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminModerationPanel } from "@/components/admin-moderation-panel";
-import { Nav } from "@/components/nav";
 import { getApprovedVendors, getHiddenVendors, getPendingVendors, getRejectedVendors, getSuspendedVendors } from "@/lib/queries";
 import type { Vendor } from "@/lib/types";
 import { requireAdminPage } from "@/lib/admin-auth";
@@ -20,12 +19,11 @@ export default async function AdminVendorsPage() {
   const restrictedVendors = [...hiddenVendors, ...suspendedVendors, ...rejectedVendors];
 
   return (
-    <>
-      <Nav />
-      <main className="container grid gap-6 py-8 lg:grid-cols-[280px_1fr]">
+    <main className="admin-shell">
+      <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
-          <div className="soft-gradient rounded-[28px] p-6 md:p-8">
+          <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Vendors</p>
             <h1 className="mt-3 text-4xl font-black">Vendor control center.</h1>
             <p className="mt-3 max-w-3xl leading-8 text-[#6B7280]">Review new applications, audit approved vendors anytime, hide public profiles, suspend posting access, restore trusted stores, or remove vendors from the marketplace workflow.</p>
@@ -51,14 +49,14 @@ export default async function AdminVendorsPage() {
           <VendorManagementTable title="Active vendors" vendors={approvedVendors} empty="No approved vendors yet." />
           <VendorManagementTable title="Restricted and removed vendors" vendors={restrictedVendors} empty="No hidden, suspended, or removed vendors." />
         </section>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 
 function VendorStateCard({ icon, label, value, copy }: { icon: React.ReactNode; label: string; value: number; copy: string }) {
   return (
-    <article className="card rounded-[18px] p-5">
+    <article className="admin-metric-card">
       <span className="grid size-11 place-items-center rounded-2xl bg-[#F3EEFF] text-[#6C3CF0]">{icon}</span>
       <p className="mt-4 text-sm font-extrabold text-[#6B7280]">{label}</p>
       <p className="mt-2 text-3xl font-black">{value}</p>
@@ -69,7 +67,7 @@ function VendorStateCard({ icon, label, value, copy }: { icon: React.ReactNode; 
 
 function VendorManagementTable({ title, vendors, empty }: { title: string; vendors: Vendor[]; empty: string }) {
   return (
-    <section className="card rounded-[22px] p-6">
+    <section className="admin-card">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black">{title}</h2>

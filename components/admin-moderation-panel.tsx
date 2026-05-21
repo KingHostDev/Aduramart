@@ -44,7 +44,7 @@ export function AdminModerationPanel({
   };
 
   return (
-    <div className="card rounded-[22px] p-6">
+    <div className="admin-card">
       <div className="flex items-center gap-3">
         <BadgeCheck className="text-[#6C3CF0]" />
         <h2 className="text-2xl font-black">{title}</h2>
@@ -55,7 +55,7 @@ export function AdminModerationPanel({
       <div className="mt-5 overflow-hidden rounded-2xl border border-[#ece6ff]">
         {rows.length ? (
           rows.map((row) => (
-            <div key={row.id} className="grid gap-3 border-b border-[#ece6ff] bg-white p-4 last:border-b-0 md:grid-cols-[1fr_1fr_1fr_auto]">
+            <div key={row.id} className="admin-data-row grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto]">
               {row.cells.map((cell) => (
                 <p key={cell} className="text-sm font-bold text-[#454151]">{cell}</p>
               ))}
@@ -87,7 +87,7 @@ export function AdminModerationPanel({
             </div>
           ))
         ) : (
-          <div className="bg-white p-6 text-sm font-bold text-[#6B7280]">No pending records right now.</div>
+          <div className="admin-data-row text-sm font-bold text-[#6B7280]">No pending records right now.</div>
         )}
       </div>
     </div>

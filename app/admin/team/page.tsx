@@ -1,6 +1,5 @@
 import { Crown, KeyRound, Mail, Phone, ShieldCheck, UserCog, UsersRound } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Nav } from "@/components/nav";
 import { createAdminAccount } from "@/lib/actions";
 import { requireSuperAdmin } from "@/lib/admin-auth";
 import { getAdminProfiles } from "@/lib/queries";
@@ -18,12 +17,11 @@ export default async function AdminTeamPage({ searchParams }: { searchParams?: P
   const operators = admins.filter((admin) => admin.role === "admin");
 
   return (
-    <>
-      <Nav />
-      <main className="container grid gap-5 py-6 lg:grid-cols-[260px_1fr]">
+    <main className="admin-shell">
+      <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-5">
-          <div className="soft-gradient rounded-[24px] p-5 md:p-7">
+          <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Admin team</p>
             <h1 className="mt-3 text-4xl font-black">Super Admins and Admins.</h1>
             <p className="mt-3 max-w-3xl leading-8 text-[#6B7280]">Super Admins can create admin profiles with login passwords. Admins can help manage vendor reviews, listing moderation, reports, and support operations.</p>
@@ -38,7 +36,7 @@ export default async function AdminTeamPage({ searchParams }: { searchParams?: P
               <RoleCard icon={<ShieldCheck />} title="Admin" copy="Can support daily operations such as vendor review, product moderation, reports, and customer/vendor support." />
             </div>
 
-            <section className="card rounded-[22px] p-5 md:p-6">
+            <section className="admin-card">
               <div className="flex items-center gap-3">
                 <span className="grid size-11 place-items-center rounded-2xl bg-[#F3EEFF] text-[#6C3CF0]"><UserCog size={20} /></span>
                 <div>
@@ -75,8 +73,8 @@ export default async function AdminTeamPage({ searchParams }: { searchParams?: P
           <TeamSection title="Super Admins" icon={<Crown className="text-[#FFB86B]" />} admins={superAdmins} empty="No super admin profile found yet." />
           <TeamSection title="Admins" icon={<UserCog className="text-[#6C3CF0]" />} admins={operators} empty="No admin operators added yet." />
         </section>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 
@@ -109,7 +107,7 @@ function RoleCard({ icon, title, copy }: { icon: React.ReactNode; title: string;
 
 function TeamSection({ title, icon, admins, empty }: { title: string; icon: React.ReactNode; admins: { id: string; fullName: string; role: string; phone?: string | null }[]; empty: string }) {
   return (
-    <section className="card rounded-[22px] p-5 md:p-6">
+    <section className="admin-card">
       <div className="flex items-center gap-3">
         {icon}
         <h2 className="text-2xl font-black">{title}</h2>

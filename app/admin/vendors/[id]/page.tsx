@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowLeft, BadgeCheck, FileText, IdCard, ImageIcon, UserRound } from "lucide-react";
 import { AdminDecisionButtons } from "@/components/admin-decision-buttons";
-import { Nav } from "@/components/nav";
+import { AdminSidebar } from "@/components/admin-sidebar";
 import { getAdminVendorById } from "@/lib/queries";
 import { requireAdminPage } from "@/lib/admin-auth";
 
@@ -14,26 +14,20 @@ export default async function AdminVendorReview({ params }: { params: Promise<{ 
 
   if (!vendor) {
     return (
-      <>
-        <Nav />
-        <main className="container py-12">
+      <main className="admin-shell"><div className="admin-workspace"><AdminSidebar /><section className="grid gap-6">
           <Link href="/admin/vendors" className="inline-flex items-center gap-2 text-sm font-extrabold text-[#6C3CF0]">
             <ArrowLeft size={17} />
             Back to vendors
           </Link>
-          <div className="card mt-6 rounded-[24px] p-8">
+          <div className="admin-card mt-6">
             <h1 className="text-3xl font-black">Vendor not found</h1>
             <p className="mt-3 text-[#6B7280]">This vendor may have been removed or the record could not be loaded.</p>
-          </div>
-        </main>
-      </>
+          </div></section></div></main>
     );
   }
 
   return (
-    <>
-      <Nav />
-      <main className="container py-10">
+    <main className="admin-shell"><div className="admin-workspace"><AdminSidebar /><section className="grid gap-6">
         <Link href="/admin/vendors" className="inline-flex items-center gap-2 text-sm font-extrabold text-[#6C3CF0]">
           <ArrowLeft size={17} />
           Back to vendors
@@ -41,7 +35,7 @@ export default async function AdminVendorReview({ params }: { params: Promise<{ 
 
         <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
           <div className="grid gap-6">
-            <div className="card overflow-hidden rounded-[24px]">
+            <div className="admin-card overflow-hidden p-0">
               <div className="relative h-72 bg-[#F3EEFF]">
                 <Image src={vendor.banner} alt={vendor.storeName} fill className="object-cover" />
               </div>
@@ -94,7 +88,7 @@ export default async function AdminVendorReview({ params }: { params: Promise<{ 
             </ReviewSection>
           </div>
 
-          <aside className="card h-fit rounded-[24px] p-6">
+          <aside className="admin-card h-fit">
             <div className="flex items-center gap-3">
               <BadgeCheck className="text-[#6C3CF0]" />
               <h2 className="text-2xl font-black">Admin decision</h2>
@@ -108,15 +102,13 @@ export default async function AdminVendorReview({ params }: { params: Promise<{ 
             </div>
             <AdminDecisionButtons type="vendors" id={vendor.id} status={vendor.status} />
           </aside>
-        </section>
-      </main>
-    </>
+        </section></section></div></main>
   );
 }
 
 function ReviewSection({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
-    <section className="card rounded-[24px] p-6">
+    <section className="admin-card">
       <div className="mb-5 flex items-center gap-3">
         {icon}
         <h2 className="text-2xl font-black">{title}</h2>
