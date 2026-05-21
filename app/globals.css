@@ -466,3 +466,45 @@ html.admin-dark .admin-shell .border-\[\#ece6ff\],
 html.admin-dark .admin-shell .border-\[\#dcd1ff\] {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
+
+/* Softer admin dark mode: dark grey, never pure black. */
+html.admin-dark .admin-shell {
+  background:
+    radial-gradient(circle at top left, rgba(108, 60, 240, 0.16), transparent 28rem),
+    linear-gradient(135deg, #24272f 0%, #30333b 46%, #262932 100%) !important;
+}
+
+html.admin-dark .admin-nav-link.is-active,
+html.admin-dark .admin-shell .bg-\[\#111111\] {
+  background-color: #3a3d46 !important;
+}
+
+html.admin-dark .admin-shell .text-white\/70 {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+html.admin-dark .admin-sidebar-card,
+html.admin-dark .admin-card,
+html.admin-dark .admin-topbar,
+html.admin-dark .admin-metric-card,
+html.admin-dark .admin-data-row {
+  background: rgba(55, 58, 67, 0.86) !important;
+}
+
+html.admin-dark .admin-shell .bg-\[\#fbfaf8\],
+html.admin-dark .admin-shell .bg-\[\#f7f6fb\],
+html.admin-dark .admin-shell .bg-\[\#f4f4f1\] {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+.admin-card,
+.admin-metric-card,
+.admin-sidebar-card,
+.admin-topbar {
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.admin-card:hover,
+.admin-metric-card:hover {
+  box-shadow: 0 28px 80px rgba(17, 17, 17, 0.1);
+}

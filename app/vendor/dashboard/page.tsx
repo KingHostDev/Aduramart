@@ -1,9 +1,10 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BarChart3, Box, CheckCircle2, Clock, EyeOff, Heart, MessageCircle, PackagePlus, Settings, ShieldAlert, Store, Truck } from "lucide-react";
 import { DashboardLogout } from "@/components/dashboard-logout";
 import { Nav } from "@/components/nav";
+import { VendorDashboardNav } from "@/components/vendor-dashboard-nav";
 import { StatCard } from "@/components/ui";
 import { deleteVendorAccount, markVendorProductOutOfSale, removeVendorProduct, submitProductForReview, updateVendorBio } from "@/lib/actions";
 import { categories, formatNaira } from "@/lib/data";
@@ -44,12 +45,12 @@ export default async function VendorDashboard() {
 
   return (
     <>
-      <Nav />
+      <VendorDashboardNav storeName={vendor.storeName} />
       <Link href="/messages?to=admin&topic=support" className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-[#6C3CF0] px-5 py-3 text-sm font-extrabold text-white shadow-2xl shadow-purple-500/30 transition hover:bg-[#5b2fe0]">
         <MessageCircle size={18} />
         Contact Admin
       </Link>
-      <main className="container grid gap-6 py-8 lg:grid-cols-[260px_1fr]">
+      <main id="overview" className="container grid gap-6 py-8 lg:grid-cols-[260px_1fr]">
         <VendorSidebar />
         <section className="grid gap-6">
           <VendorHero vendor={vendor} />
@@ -64,15 +65,15 @@ export default async function VendorDashboard() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-            <ProductManagement products={vendorProducts} canManageStore={canManageStore} />
+            <div id="products"><ProductManagement products={vendorProducts} canManageStore={canManageStore} /></div>
             <div className="grid gap-6">
-              <StoreBioForm vendor={vendor} canManageStore={canManageStore} />
-              <SubmitListingForm vendor={vendor} canSubmitProducts={canSubmitProducts} />
+              <div id="store-settings"><StoreBioForm vendor={vendor} canManageStore={canManageStore} /></div>
+              <div id="submit-listing"><SubmitListingForm vendor={vendor} canSubmitProducts={canSubmitProducts} /></div>
               <VendorAccountSettings vendor={vendor} />
             </div>
           </div>
 
-          <div className="card rounded-[22px] p-6">
+          <div id="orders" className="card rounded-[22px] p-6">
             <h2 className="text-2xl font-black">Recent orders</h2>
             <div className="mt-5 grid gap-3">
               {vendorOrders.length ? (
@@ -98,19 +99,22 @@ export default async function VendorDashboard() {
 }
 
 function VendorSidebar() {
+  const links = [
+    [BarChart3, "Analytics", "#overview"],
+    [Box, "Products", "#products"],
+    [PackagePlus, "Submit listing", "#submit-listing"],
+    [Truck, "Orders", "#orders"],
+    [MessageCircle, "Contact Admin", "/messages?to=admin&topic=support"],
+    [Settings, "Store settings", "#store-settings"]
+  ] as const;
+
   return (
-    <aside className="card h-fit rounded-[22px] p-4">
-      {[
-        [BarChart3, "Analytics"],
-        [Box, "Products"],
-        [Truck, "Orders"],
-        [MessageCircle, "Contact Admin"],
-        [Settings, "Store settings"]
-      ].map(([Icon, label]) => (
-        <a key={label as string} href={label === "Contact Admin" ? "/messages?to=admin&topic=support" : "#"} className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-extrabold hover:bg-[#F3EEFF]">
+    <aside className="card sticky top-24 h-fit rounded-[22px] p-4">
+      {links.map(([Icon, label, href]) => (
+        <Link key={label} href={href} className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-extrabold hover:bg-[#F3EEFF]">
           <Icon size={18} className="text-[#6C3CF0]" />
-          {label as string}
-        </a>
+          {label}
+        </Link>
       ))}
       <DashboardLogout />
     </aside>

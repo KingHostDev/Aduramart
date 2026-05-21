@@ -1,4 +1,5 @@
 import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminTopbar } from "@/components/admin-topbar";
 import { AdminModerationPanel } from "@/components/admin-moderation-panel";
 import { ProductCard } from "@/components/ui";
 import { getApprovedProducts, getPendingProducts } from "@/lib/queries";
@@ -16,6 +17,7 @@ export default async function AdminProductsPage() {
       <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
+          <AdminTopbar />
           <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Product moderation</p>
             <h1 className="mt-3 text-4xl font-black">Review marketplace listings.</h1>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, BadgeCheck, Boxes, FileText, ImageIcon, PackageCheck, Store } from "lucide-react";
 import { AdminDecisionButtons } from "@/components/admin-decision-buttons";
 import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminTopbar } from "@/components/admin-topbar";
 import { formatNaira } from "@/lib/data";
 import { getAdminProductById } from "@/lib/queries";
 import { requireAdminPage } from "@/lib/admin-auth";
@@ -30,6 +31,7 @@ export default async function AdminProductReview({ params }: { params: Promise<{
     <main className="admin-shell"><div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
+          <AdminTopbar />
           <Link href="/admin/products" className="inline-flex w-fit items-center gap-2 text-sm font-extrabold text-[#6C3CF0]">
             <ArrowLeft size={17} />
             Back to products

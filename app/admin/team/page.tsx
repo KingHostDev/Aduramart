@@ -1,5 +1,6 @@
 import { Crown, KeyRound, Mail, Phone, ShieldCheck, UserCog, UsersRound } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminTopbar } from "@/components/admin-topbar";
 import { createAdminAccount } from "@/lib/actions";
 import { requireSuperAdmin } from "@/lib/admin-auth";
 import { getAdminProfiles } from "@/lib/queries";
@@ -21,6 +22,7 @@ export default async function AdminTeamPage({ searchParams }: { searchParams?: P
       <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-5">
+          <AdminTopbar />
           <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Admin team</p>
             <h1 className="mt-3 text-4xl font-black">Super Admins and Admins.</h1>

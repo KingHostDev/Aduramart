@@ -19,7 +19,7 @@ import {
   WalletCards
 } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { AdminThemeToggle } from "@/components/admin-theme-toggle";
+import { AdminTopbar } from "@/components/admin-topbar";
 import { AdminCommerceCharts } from "@/components/admin-commerce-charts";
 import { AdminModerationPanel } from "@/components/admin-moderation-panel";
 import { formatNaira } from "@/lib/data";
@@ -77,34 +77,7 @@ export default async function AdminDashboard() {
         <AdminSidebar />
 
         <section className="grid gap-5">
-          <header className="admin-topbar">
-            <div className="admin-pill-tabs" aria-label="Admin sections">
-              <Link href="/admin/dashboard" className="is-active">Dashboard</Link>
-              <Link href="/admin/vendors">Vendors</Link>
-              <Link href="/admin/products">Products</Link>
-              <Link href="/admin/messages">Messages</Link>
-              <Link href="/admin/team">Team</Link>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="hidden items-center gap-2 rounded-full bg-[#f4f4f1] px-4 py-3 text-sm font-extrabold text-[#6B7280] xl:flex">
-                <Search size={16} />
-                <span>Search orders, vendors, products</span>
-              </label>
-              <AdminThemeToggle />
-              <Link href="/admin/messages" className="admin-icon-button relative" aria-label="Open admin messages">
-                <BellRing size={18} />
-                {newMessages.length ? <span className="absolute right-2 top-2 size-2 rounded-full bg-[#EF4444]" /> : null}
-              </Link>
-              <div className="hidden items-center gap-3 rounded-full bg-[#111111] py-2 pl-2 pr-4 text-white md:flex">
-                <span className="grid size-10 place-items-center rounded-full bg-[#6C3CF0] text-sm font-black">{admin.fullName.slice(0, 1).toUpperCase()}</span>
-                <span>
-                  <span className="block text-sm font-black">{admin.fullName}</span>
-                  <span className="block text-xs font-bold capitalize text-white/70">{admin.role.replace("_", " ")}</span>
-                </span>
-              </div>
-            </div>
-          </header>
-
+          <AdminTopbar />
           <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
             <div className="admin-card relative overflow-hidden p-7 md:p-8">
               <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-[#6C3CF0]/10 blur-3xl" />

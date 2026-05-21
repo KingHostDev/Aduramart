@@ -1,5 +1,6 @@
 import { AlertTriangle, BadgeCheck, MessageSquareWarning, ShieldAlert } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminTopbar } from "@/components/admin-topbar";
 import { requireAdminPage } from "@/lib/admin-auth";
 
 export default async function AdminReportsPage() {
@@ -9,6 +10,7 @@ export default async function AdminReportsPage() {
       <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
+          <AdminTopbar />
           <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Reports</p>
             <h1 className="mt-3 text-4xl font-black">Trust and safety reports.</h1>

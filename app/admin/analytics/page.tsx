@@ -1,5 +1,6 @@
 import { Activity, BadgeCheck, Clock, PackageCheck, ShieldCheck, ShoppingBag, Store, TrendingUp } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminTopbar } from "@/components/admin-topbar";
 import { StatCard } from "@/components/ui";
 import { formatNaira } from "@/lib/data";
 import { getAdminOrders, getApprovedProducts, getApprovedVendors, getPendingProducts, getPendingVendors } from "@/lib/queries";
@@ -23,6 +24,7 @@ export default async function AdminAnalyticsPage() {
       <div className="admin-workspace">
         <AdminSidebar />
         <section className="grid gap-6">
+          <AdminTopbar />
           <div className="admin-card">
             <p className="text-sm font-extrabold uppercase tracking-[0.24em] text-[#6C3CF0]">Analytics</p>
             <h1 className="mt-3 text-4xl font-black">Every part of AduraMart at a glance.</h1>

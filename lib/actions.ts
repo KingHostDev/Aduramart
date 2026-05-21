@@ -548,14 +548,32 @@ export async function updateVendorProductForReview(formData: FormData) {
 
 export async function submitProductForReview(formData: FormData) {
   const supabase = await createClient();
-  if (!supabase) {
-    redirect("/vendor/dashboard?product=pending");
+  const adminClient = createAdminClient();
+
+  if (!supabase || !adminClient) {
+    redirect("/vendor/dashboard?product=not-configured");
+  }
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) {
+    redirect("/vendor-login?error=login-required");
   }
 
   const vendorId = String(formData.get("vendorId") ?? "");
-  const { data: vendor } = await supabase.from("vendors").select("status").eq("id", vendorId).single();
+  const { data: vendor } = await adminClient
+    .from("vendors")
+    .select("id, status, user_id")
+    .eq("id", vendorId)
+    .eq("user_id", user.id)
+    .single();
 
-  if (vendor?.status !== "approved") {
+  if (!vendor) {
+    redirect("/vendor/dashboard?product=not-authorized");
+  }
+
+  if (vendor.status !== "approved") {
     redirect("/vendor/dashboard?product=vendor-not-approved");
   }
 
@@ -590,7 +608,7 @@ export async function submitProductForReview(formData: FormData) {
     featured: false
   };
 
-  const { error } = await supabase.from("products").insert(productPayload);
+  const { error } = await adminClient.from("products").insert(productPayload);
 
   if (error) {
     const missingGalleryColumn = error.message.toLowerCase().includes("image_urls");
@@ -599,7 +617,7 @@ export async function submitProductForReview(formData: FormData) {
       redirect("/vendor/dashboard?product=submit-failed");
     }
 
-    const { error: fallbackError } = await supabase.from("products").insert({ ...productPayload, image_urls: undefined });
+    const { error: fallbackError } = await adminClient.from("products").insert({ ...productPayload, image_urls: undefined });
 
     if (fallbackError) {
       redirect("/vendor/dashboard?product=submit-failed");
@@ -616,7 +634,7 @@ async function uploadFiles(bucket: string, values: FormDataEntryValue[], owner: 
   return uploaded.filter((url): url is string => Boolean(url));
 }
 async function uploadFile(bucket: string, value: FormDataEntryValue | null, owner: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient() ?? await createClient();
   if (!supabase || !(value instanceof File) || value.size === 0) {
     return null;
   }
