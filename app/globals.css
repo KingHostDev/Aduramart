@@ -1057,3 +1057,54 @@ html.admin-sidebar-collapsed .admin-workspace {
     flex-wrap: nowrap;
   }
 }
+/* Site-wide typography balance: stop non-heading text from feeling shouted. */
+body {
+  font-weight: 500;
+}
+
+.font-semibold,
+.font-bold {
+  font-weight: 500 !important;
+}
+
+.font-extrabold {
+  font-weight: 600 !important;
+}
+
+.font-black {
+  font-weight: 700 !important;
+}
+
+h1,
+h2,
+h3,
+.text-6xl,
+.text-5xl,
+.text-4xl,
+.text-3xl {
+  font-weight: 750 !important;
+}
+
+button,
+.button,
+[role="button"],
+input,
+select,
+textarea,
+label,
+nav a,
+.admin-nav-title,
+.vendor-sidebar-link,
+.vendor-profile-name {
+  font-weight: 500 !important;
+}
+
+.hero h1,
+.home-hero h1,
+h1.text-6xl,
+h1.text-5xl,
+.text-7xl,
+.text-6xl.font-black,
+.text-5xl.font-black {
+  font-weight: 800 !important;
+}
