@@ -781,3 +781,38 @@ html.admin-dark .admin-back-button {
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
 }
+
+/* Make fixed dashboard layouts fill the screen rather than look like squeezed cards. */
+.admin-workspace {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 0 0 286px !important;
+}
+
+.admin-workspace > section,
+.vendor-dashboard-main > section {
+  width: 100%;
+  max-width: none;
+}
+
+.admin-topbar,
+.admin-card,
+.admin-metric-card {
+  border-radius: 0;
+}
+
+.vendor-dashboard-main {
+  padding: 24px !important;
+}
+
+html.admin-sidebar-collapsed .admin-workspace {
+  padding-left: 86px !important;
+}
+
+@media (max-width: 1023px) {
+  .admin-workspace {
+    padding-left: 78px !important;
+    padding-right: 0 !important;
+  }
+}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -6,14 +6,14 @@ import { BarChart3, Box, ChevronLeft, ChevronRight, CreditCard, HeartHandshake, 
 import { DashboardLogout } from "./dashboard-logout";
 
 const links = [
-  ["Overview", "#overview", BarChart3],
-  ["Products", "#products", Box],
-  ["Submit", "#submit-listing", PackagePlus],
-  ["Orders", "#orders", Truck],
-  ["Profile", "#profile", UserRound],
-  ["Payments", "#payments", CreditCard],
-  ["Settings", "#settings", Settings],
-  ["Admin", "/messages?to=admin&topic=support", MessageCircle]
+  ["Overview", "/vendor/dashboard", BarChart3],
+  ["Products", "/vendor/dashboard/products", Box],
+  ["Submit", "/vendor/dashboard/products#submit-listing", PackagePlus],
+  ["Orders", "/vendor/dashboard/orders", Truck],
+  ["Profile", "/vendor/dashboard/profile", UserRound],
+  ["Payments", "/vendor/dashboard/payments", CreditCard],
+  ["Messages", "/vendor/dashboard/messages", MessageCircle],
+  ["Settings", "/vendor/dashboard/settings", Settings]
 ] as const;
 
 export function VendorDashboardSidebar({ storeName }: { storeName: string }) {

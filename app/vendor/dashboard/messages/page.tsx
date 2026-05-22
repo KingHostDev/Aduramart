@@ -1,0 +1,11 @@
+﻿import { MessageCircle, Send } from "lucide-react";
+import { VendorDashboardFrame } from "@/components/vendor-dashboard-frame";
+import { submitContactMessage } from "@/lib/actions";
+import { requireVendorDashboard } from "@/lib/vendor-auth";
+
+export default async function VendorMessagesPage({ searchParams }: { searchParams?: Promise<{ sent?: string; topic?: string }> }) {
+  const { vendor } = await requireVendorDashboard();
+  const params = await (searchParams ?? Promise.resolve({} as { sent?: string; topic?: string }));
+  const subject = params.topic === "store-name-change" ? "Store name change request" : "Vendor support request";
+  return <VendorDashboardFrame vendor={vendor} title="Messages"><section className="grid gap-6 lg:grid-cols-[320px_1fr]"><aside className="card rounded-[22px] p-5"><MessageCircle className="text-[#6C3CF0]" /><h1 className="mt-4 text-2xl font-black">Messages</h1><p className="mt-2 text-sm font-bold leading-7 text-[#6B7280]">Contact AduraMart admin from inside your vendor dashboard.</p></aside><form action={submitContactMessage} className="card rounded-[22px] p-6"><input type="hidden" name="recipientType" value="admin" /><input type="hidden" name="senderEmail" value={vendor.email} /><input type="hidden" name="senderName" value={vendor.ownerName} /><label className="grid gap-2 text-sm font-extrabold">Subject<input name="subject" defaultValue={subject} className="rounded-2xl border border-[#ece6ff] px-4 py-3 outline-none" /></label><label className="mt-4 grid gap-2 text-sm font-extrabold">Message<textarea name="body" rows={8} minLength={10} required placeholder="Write your message to admin..." className="rounded-2xl border border-[#ece6ff] px-4 py-3 leading-7 outline-none" /></label>{params.sent ? <p className="mt-4 rounded-2xl bg-[#EAFBF1] p-4 text-sm font-extrabold text-[#16803E]">Message sent.</p> : null}<button className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#6C3CF0] px-6 py-3 font-extrabold text-white">Send message <Send size={18} /></button></form></section></VendorDashboardFrame>;
+}
