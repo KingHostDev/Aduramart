@@ -912,3 +912,148 @@ html.admin-sidebar-collapsed .admin-workspace {
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 28px 80px rgba(31, 31, 31, 0.16);
 }
+/* Admin usability reset: sticky sidebar, full-width content, lighter typography. */
+.admin-shell {
+  overflow-x: hidden;
+}
+
+.admin-workspace {
+  display: grid !important;
+  grid-template-columns: 286px minmax(0, 1fr) !important;
+  gap: 18px !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100vh;
+  margin: 0 !important;
+  padding: 18px !important;
+  box-sizing: border-box;
+  overflow: visible !important;
+}
+
+.admin-workspace > section {
+  display: grid;
+  min-width: 0;
+  width: 100%;
+  overflow: visible !important;
+}
+
+.admin-sidebar-card {
+  position: sticky !important;
+  top: 18px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: 100% !important;
+  height: calc(100vh - 36px) !important;
+  border-radius: 28px !important;
+}
+
+html.admin-sidebar-collapsed .admin-workspace {
+  grid-template-columns: 86px minmax(0, 1fr) !important;
+  padding-left: 18px !important;
+}
+
+.admin-topbar {
+  position: sticky;
+  top: 18px;
+  z-index: 5000;
+  overflow: visible !important;
+  border-radius: 26px !important;
+}
+
+.admin-card,
+.admin-metric-card {
+  border-radius: 22px !important;
+}
+
+.dashboard-notification-popover {
+  z-index: 99999 !important;
+}
+
+.admin-shell .font-extrabold,
+.admin-shell .admin-nav-description,
+.admin-shell .admin-brand-subtitle,
+.admin-shell .admin-muted {
+  font-weight: 500 !important;
+}
+
+.admin-shell .font-black,
+.admin-shell .admin-brand-name,
+.admin-shell .admin-nav-title,
+.admin-shell .admin-mini-callout,
+.admin-shell .admin-back-button,
+.admin-shell .admin-pill-tabs a {
+  font-weight: 650 !important;
+}
+
+.admin-shell h1.font-black,
+.admin-shell h2.font-black,
+.admin-shell h3.font-black,
+.admin-shell .text-4xl.font-black,
+.admin-shell .text-3xl.font-black,
+.admin-shell .text-2xl.font-black {
+  font-weight: 800 !important;
+}
+
+@media (max-width: 1023px) {
+  .admin-workspace {
+    display: block !important;
+    padding: 12px !important;
+  }
+
+  .admin-sidebar-card {
+    position: sticky !important;
+    top: 8px !important;
+    z-index: 4500;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 42vh;
+    margin-bottom: 12px;
+    border-radius: 24px !important;
+    padding: 12px !important;
+  }
+
+  .admin-brand-row {
+    margin-bottom: 10px;
+  }
+
+  .admin-search-shell,
+  .admin-mini-callout,
+  .admin-collapse-btn {
+    display: none !important;
+  }
+
+  .admin-nav-list {
+    display: flex !important;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .admin-sidebar-card .admin-sidebar-text {
+    display: block !important;
+  }
+
+  .admin-nav-description,
+  .admin-sidebar-footer {
+    display: none !important;
+  }
+
+  .admin-nav-link {
+    min-width: 124px !important;
+    justify-content: flex-start !important;
+    padding: 10px !important;
+  }
+
+  .admin-topbar {
+    top: 8px;
+    align-items: flex-start;
+    flex-direction: column;
+    border-radius: 22px !important;
+  }
+
+  .admin-pill-tabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+}
