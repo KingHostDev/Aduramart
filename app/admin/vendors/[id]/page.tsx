@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowLeft, BadgeCheck, FileText, IdCard, ImageIcon, UserRound } from "lucide-react";
 import { AdminDecisionButtons } from "@/components/admin-decision-buttons";
+import { updateVendorStoreNameByAdmin } from "@/lib/actions";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminTopbar } from "@/components/admin-topbar";
 import { getAdminVendorById } from "@/lib/queries";
@@ -101,6 +102,15 @@ export default async function AdminVendorReview({ params }: { params: Promise<{ 
               <p className="text-sm font-bold text-[#6B7280]">Current status</p>
               <p className="mt-2 text-2xl font-black capitalize text-[#6C3CF0]">{vendor.status}</p>
             </div>
+            <form action={updateVendorStoreNameByAdmin} className="mb-6 grid gap-3 rounded-2xl border border-[#ece6ff] bg-white p-4">
+              <input type="hidden" name="vendorId" value={vendor.id} />
+              <label className="grid gap-2 text-sm font-extrabold">
+                Store name change
+                <input name="storeName" defaultValue={vendor.storeName} className="rounded-2xl border border-[#ece6ff] px-4 py-3 outline-none focus:border-[#6C3CF0]" />
+              </label>
+              <p className="text-xs font-bold leading-5 text-[#6B7280]">Only admin can change the store name after onboarding.</p>
+              <button className="rounded-full bg-[#6C3CF0] px-4 py-3 text-sm font-extrabold text-white">Update store name</button>
+            </form>
             <AdminDecisionButtons type="vendors" id={vendor.id} status={vendor.status} />
           </aside>
         </section></section></div></main>

@@ -78,7 +78,7 @@ export function HomeHero() {
         <motion.div initial={{ opacity: 0, x: 36 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }} className="relative min-h-[480px] self-end lg:min-h-[650px]">
           <div className="absolute bottom-0 right-[-10%] h-[88%] w-[104%] overflow-hidden rounded-tl-[70px] bg-[#C9D4F7] shadow-2xl shadow-purple-950/16 md:right-[-4%]">
             <Image
-              src="https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=1400&q=88"
+              src="/hero 1.jpeg"
               alt="Premium white garments arranged for worship essentials"
               fill
               priority
@@ -106,7 +106,7 @@ export function HomeHero() {
               </div>
               <Flame className="text-[#FFB86B]" />
             </div>
-            <div className="mt-4 flex gap-2 overflow-hidden text-xs font-extrabold text-[#6B7280]">
+            <div className="mt-4 flex gap-2 overflow-hidden text-xs font-medium text-[#6B7280]">
               {["Garments & Girdle", "Oils & Perfumes", "Books"].map((item) => <span key={item} className="rounded-full bg-[#F3EEFF] px-3 py-1">{item}</span>)}
             </div>
           </motion.div>

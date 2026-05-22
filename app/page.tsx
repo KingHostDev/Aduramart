@@ -84,7 +84,7 @@ export default async function Home() {
               ].map(([quote, name, location]) => (
                 <MotionItem key={name}>
                   <article className="card rounded-[18px] p-6 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/10">
-                    <p className="text-lg font-bold leading-8 text-[#1F1F1F]">"{quote}"</p>
+                    <p className="text-lg font-medium leading-8 text-[#1F1F1F]">"{quote}"</p>
                     <div className="mt-6 border-t border-[#ece6ff] pt-5">
                       <p className="font-black">{name}</p>
                       <p className="text-sm font-bold text-[#6B7280]">{location}</p>

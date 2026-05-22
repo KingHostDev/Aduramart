@@ -41,6 +41,9 @@ export type Vendor = {
   kycProvider?: string | null;
   kycReference?: string | null;
   kycResult?: Record<string, unknown> | null;
+  paymentBankName?: string;
+  paymentAccountName?: string;
+  paymentAccountNumber?: string;
 };
 
 export type Product = {

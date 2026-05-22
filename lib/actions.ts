@@ -313,6 +313,128 @@ export async function updateVendorBio(formData: FormData) {
 }
 
 
+export async function updateVendorProfile(formData: FormData) {
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  if (!supabase || !adminClient) {
+    redirect("/vendor/dashboard?profile=not-configured");
+  }
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) {
+    redirect("/vendor-login?error=login-required");
+  }
+
+  const vendorId = String(formData.get("vendorId") ?? "");
+  const { data: vendor } = await adminClient
+    .from("vendors")
+    .select("id, user_id, status")
+    .eq("id", vendorId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!vendor) {
+    redirect("/vendor/dashboard?profile=not-authorized");
+  }
+
+  if (vendor.status === "suspended") {
+    redirect("/vendor/dashboard?profile=suspended");
+  }
+
+  const selectedCategories = formData.getAll("category").map((value) => String(value).trim()).filter(Boolean);
+
+  const { error } = await adminClient
+    .from("vendors")
+    .update({
+      owner_name: String(formData.get("ownerName") ?? "").trim(),
+      phone: String(formData.get("phone") ?? "").trim(),
+      whatsapp: String(formData.get("whatsapp") ?? "").trim(),
+      category: selectedCategories.join(", "),
+      address: String(formData.get("address") ?? "").trim(),
+      city: String(formData.get("city") ?? "").trim(),
+      state: String(formData.get("state") ?? "").trim(),
+      country: String(formData.get("country") ?? "Nigeria").trim(),
+      location: String(formData.get("location") ?? "Nigeria").trim(),
+      description: String(formData.get("description") ?? "").trim()
+    })
+    .eq("id", vendorId);
+
+  if (error) {
+    redirect("/vendor/dashboard?profile=update-failed");
+  }
+
+  redirect("/vendor/dashboard?profile=updated");
+}
+
+export async function updateVendorPaymentSettings(formData: FormData) {
+  const supabase = await createClient();
+  const adminClient = createAdminClient();
+
+  if (!supabase || !adminClient) {
+    redirect("/vendor/dashboard?payments=not-configured");
+  }
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) {
+    redirect("/vendor-login?error=login-required");
+  }
+
+  const vendorId = String(formData.get("vendorId") ?? "");
+  const { data: vendor } = await adminClient
+    .from("vendors")
+    .select("id, user_id")
+    .eq("id", vendorId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!vendor) {
+    redirect("/vendor/dashboard?payments=not-authorized");
+  }
+
+  const { error } = await adminClient
+    .from("vendors")
+    .update({
+      payment_bank_name: String(formData.get("bankName") ?? "").trim(),
+      payment_account_name: String(formData.get("accountName") ?? "").trim(),
+      payment_account_number: String(formData.get("accountNumber") ?? "").trim()
+    })
+    .eq("id", vendorId);
+
+  if (error) {
+    redirect("/vendor/dashboard?payments=update-failed");
+  }
+
+  redirect("/vendor/dashboard?payments=updated");
+}
+
+export async function updateVendorStoreNameByAdmin(formData: FormData) {
+  const currentAdmin = await requireSuperAdmin();
+  const adminClient = createAdminClient();
+
+  if (!currentAdmin || !adminClient) {
+    redirect("/admin/vendors?error=super-admin-required");
+  }
+
+  const vendorId = String(formData.get("vendorId") ?? "");
+  const storeName = String(formData.get("storeName") ?? "").trim();
+
+  if (!vendorId || storeName.length < 2) {
+    redirect(`/admin/vendors/${vendorId}?store-name=incomplete`);
+  }
+
+  const { error } = await adminClient.from("vendors").update({ store_name: storeName }).eq("id", vendorId);
+
+  if (error) {
+    redirect(`/admin/vendors/${vendorId}?store-name=failed`);
+  }
+
+  redirect(`/admin/vendors/${vendorId}?store-name=updated`);
+}
 export async function deleteVendorAccount(formData: FormData) {
   const supabase = await createClient();
   const adminClient = createAdminClient();

@@ -6,7 +6,7 @@ const manrope = localFont({
   src: "../public/fonts/Manrope-VariableFont_wght.ttf",
   variable: "--font-manrope",
   display: "swap",
-  weight: "200 800"
+  weight: "100 500"
 });
 
 export const metadata: Metadata = {

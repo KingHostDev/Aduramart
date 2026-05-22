@@ -33,6 +33,9 @@ type VendorRecord = {
   kyc_provider?: string | null;
   kyc_reference?: string | null;
   kyc_result?: Record<string, unknown> | null;
+  payment_bank_name?: string | null;
+  payment_account_name?: string | null;
+  payment_account_number?: string | null;
 };
 
 type ProductRecord = {
@@ -102,7 +105,10 @@ function mapVendor(vendor: VendorRecord): Vendor {
     kycStatus: vendor.kyc_status ?? "not_configured",
     kycProvider: vendor.kyc_provider ?? null,
     kycReference: vendor.kyc_reference ?? null,
-    kycResult: vendor.kyc_result ?? null
+    kycResult: vendor.kyc_result ?? null,
+    paymentBankName: vendor.payment_bank_name ?? "",
+    paymentAccountName: vendor.payment_account_name ?? "",
+    paymentAccountNumber: vendor.payment_account_number ?? ""
   };
 }
 

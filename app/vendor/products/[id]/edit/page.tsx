@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, PackageCheck } from "lucide-react";
-import { Nav } from "@/components/nav";
+import { VendorDashboardSidebar } from "@/components/vendor-dashboard-sidebar";
 import { updateVendorProductForReview } from "@/lib/actions";
 import { categories, formatNaira } from "@/lib/data";
 import { getVendorProductForUser } from "@/lib/queries";
@@ -31,9 +31,9 @@ export default async function EditVendorProductPage({ params, searchParams }: { 
   }
 
   return (
-    <>
-      <Nav />
-      <main className="container py-8">
+    <div className="vendor-dashboard-shell">
+      <VendorDashboardSidebar storeName={product.vendorName} />
+      <main className="vendor-dashboard-main">
         <Link href="/vendor/dashboard" className="inline-flex items-center gap-2 text-sm font-extrabold text-[#6C3CF0]">
           <ArrowLeft size={17} />
           Back to dashboard
@@ -100,6 +100,6 @@ export default async function EditVendorProductPage({ params, searchParams }: { 
           </form>
         </section>
       </main>
-    </>
+    </div>
   );
 }
