@@ -615,7 +615,7 @@ export async function updateVendorProductForReview(formData: FormData) {
 
   const submittedFiles = formData.getAll("images");
 
-  if (submittedFiles.filter((value) => value instanceof File && value.size > 0).length > 5) {
+  if (submittedFiles.filter(isUploadableFile).length > 5) {
     redirect(`/vendor/products/${productId}/edit?error=max-5-images`);
   }
 
@@ -700,7 +700,7 @@ export async function submitProductForReview(formData: FormData) {
   }
 
   const submittedFiles = formData.getAll("images");
-  const fileCount = submittedFiles.filter((value) => value instanceof File && value.size > 0).length;
+  const fileCount = submittedFiles.filter(isUploadableFile).length;
 
   if (fileCount === 0) {
     redirect("/vendor/dashboard/products/new?product=image-required");
@@ -750,28 +750,50 @@ export async function submitProductForReview(formData: FormData) {
 }
 
 
+type UploadableFile = FormDataEntryValue & {
+  arrayBuffer: () => Promise<ArrayBuffer>;
+  name?: string;
+  size?: number;
+  type?: string;
+};
+
+function isUploadableFile(value: FormDataEntryValue | null): value is UploadableFile {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<UploadableFile>;
+  return typeof candidate.arrayBuffer === "function" && typeof candidate.size === "number" && candidate.size > 0;
+}
+
 async function uploadFiles(bucket: string, values: FormDataEntryValue[], owner: string) {
-  const files = values.filter((value): value is File => value instanceof File && value.size > 0).slice(0, 5);
+  const files = values.filter(isUploadableFile).slice(0, 5);
   const uploaded = await Promise.all(files.map((file) => uploadFile(bucket, file, owner)));
   return uploaded.filter((url): url is string => Boolean(url));
 }
 async function uploadFile(bucket: string, value: FormDataEntryValue | null, owner: string) {
   const supabase = createAdminClient() ?? await createClient();
-  if (!supabase || !(value instanceof File) || value.size === 0) {
+  if (!supabase || !isUploadableFile(value)) {
     return null;
   }
 
-  const safeOwner = owner.replace(/[^a-z0-9]/gi, "-").toLowerCase();
-  const path = `${safeOwner}/${Date.now()}-${value.name}`;
-  const { error } = await supabase.storage.from(bucket).upload(path, value, {
-    upsert: false,
-    contentType: value.type
-  });
+  try {
+    const safeOwner = owner.replace(/[^a-z0-9]/gi, "-").toLowerCase();
+    const safeName = (value.name || "product-image").replace(/[^a-z0-9._-]/gi, "-").toLowerCase();
+    const path = `${safeOwner}/${Date.now()}-${safeName}`;
+    const bytes = await value.arrayBuffer();
+    const { error } = await supabase.storage.from(bucket).upload(path, bytes, {
+      upsert: false,
+      contentType: value.type || "application/octet-stream"
+    });
 
-  if (error) {
+    if (error) {
+      return null;
+    }
+
+    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+    return data.publicUrl;
+  } catch {
     return null;
   }
-
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-  return data.publicUrl;
 }

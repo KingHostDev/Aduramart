@@ -786,6 +786,8 @@ html.admin-dark .admin-back-button {
 
 /* Make fixed dashboard layouts fill the screen rather than look like squeezed cards. */
 .admin-workspace {
+  display: block !important;
+  grid-template-columns: none !important;
   width: 100% !important;
   max-width: none !important;
   margin: 0 !important;
@@ -794,6 +796,8 @@ html.admin-dark .admin-back-button {
 
 .admin-workspace > section,
 .vendor-dashboard-main > section {
+  display: grid;
+  min-width: 0;
   width: 100%;
   max-width: none;
 }
@@ -837,7 +841,7 @@ html.admin-sidebar-collapsed .admin-workspace {
   place-items: center;
   overflow: hidden;
   border: 3px solid rgba(255, 255, 255, 0.42);
-  border-radius: 24px;
+  border-radius: 999px;
   background: #ffffff;
   color: #6c3cf0;
   font-weight: 950;
