@@ -54,7 +54,7 @@ export function VendorDashboardNav({ storeName }: { storeName: string }) {
                 {label}
               </Link>
             ))}
-            <Link href="/" onClick={close} className="flex items-center gap-3 rounded-2xl border border-[#ece6ff] bg-white px-4 py-4 text-sm font-extrabold text-[#6B7280]">
+            <Link href="/" onClick={close} className="flex items-center gap-3 rounded-2xl border border-[#ece6ff] bg-white px-4 py-4 text-sm font-bold text-[#6B7280]">
               <HeartHandshake size={18} className="text-[#6C3CF0]" />
               View main website
             </Link>

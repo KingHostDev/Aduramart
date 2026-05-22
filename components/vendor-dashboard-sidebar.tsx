@@ -40,13 +40,12 @@ export function VendorDashboardSidebar({ storeName, logoUrl, initials }: { store
         </button>
       </div>
 
-      <div className="vendor-profile-card">
-        <span className="vendor-profile-avatar">
+      <div className="">
+        <span className="vendor-profile-avatar mt-6">
           {logoUrl ? <Image src={logoUrl} alt={storeName} fill className="object-cover" sizes="72px" /> : <span>{initials || storeName.slice(0, 2).toUpperCase()}</span>}
         </span>
-        <span className="vendor-sidebar-text">
-          <span className="vendor-profile-name">{storeName}</span>
-          <span className="vendor-profile-note">Live store profile</span>
+        <span className="vendor-sidebar-text mt-5">
+          <span className="vendor-profile-name mt-5 font-medium">{storeName}</span>
         </span>
       </div>
 
