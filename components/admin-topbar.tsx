@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, BellRing, MessageCircle, Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { AdminThemeToggle } from "./admin-theme-toggle";
+import { DashboardNotifications } from "./dashboard-notifications";
 
 const links = [
   ["Dashboard", "/admin/dashboard"],
@@ -37,12 +38,7 @@ export function AdminTopbar() {
           <span>Search admin records</span>
         </label>
         <AdminThemeToggle />
-        <Link href="/admin/messages" className="admin-icon-button" aria-label="Open messages">
-          <MessageCircle size={18} />
-        </Link>
-        <Link href="/admin/messages" className="admin-icon-button" aria-label="Open notifications">
-          <BellRing size={18} />
-        </Link>
+        <DashboardNotifications />
       </div>
     </header>
   );

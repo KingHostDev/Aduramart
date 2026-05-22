@@ -486,7 +486,7 @@ export async function removeVendorProduct(formData: FormData) {
   const adminClient = createAdminClient();
 
   if (!supabase || !adminClient) {
-    redirect("/vendor/dashboard?product=not-configured");
+    redirect("/vendor/dashboard/products?product=not-configured");
   }
 
   const { data: userData } = await supabase.auth.getUser();
@@ -510,7 +510,7 @@ export async function removeVendorProduct(formData: FormData) {
     .single();
 
   if (!product) {
-    redirect("/vendor/dashboard?product=not-authorized");
+    redirect("/vendor/dashboard/products?product=not-authorized");
   }
 
   const status = String(product.status);
@@ -544,7 +544,7 @@ export async function markVendorProductOutOfSale(formData: FormData) {
   const adminClient = createAdminClient();
 
   if (!supabase || !adminClient) {
-    redirect("/vendor/dashboard?product=not-configured");
+    redirect("/vendor/dashboard/products?product=not-configured");
   }
 
   const { data: userData } = await supabase.auth.getUser();
@@ -564,7 +564,7 @@ export async function markVendorProductOutOfSale(formData: FormData) {
     .single();
 
   if (!product) {
-    redirect("/vendor/dashboard?product=not-authorized");
+    redirect("/vendor/dashboard/products?product=not-authorized");
   }
 
   const { error } = await adminClient
@@ -584,7 +584,7 @@ export async function updateVendorProductForReview(formData: FormData) {
   const adminClient = createAdminClient();
 
   if (!supabase || !adminClient) {
-    redirect("/vendor/dashboard?product=not-configured");
+    redirect("/vendor/dashboard/products/new?product=not-configured");
   }
 
   const { data: userData } = await supabase.auth.getUser();
@@ -603,14 +603,14 @@ export async function updateVendorProductForReview(formData: FormData) {
     .single();
 
   if (!product) {
-    redirect("/vendor/dashboard?product=not-authorized");
+    redirect("/vendor/dashboard/products/new?product=not-authorized");
   }
 
   const relatedVendors = product.vendors as { status?: string } | { status?: string }[] | null;
   const vendorStatus = Array.isArray(relatedVendors) ? relatedVendors[0]?.status : relatedVendors?.status;
 
   if (vendorStatus !== "approved") {
-    redirect("/vendor/dashboard?product=vendor-not-approved");
+    redirect("/vendor/dashboard/products/new?product=vendor-not-approved");
   }
 
   const submittedFiles = formData.getAll("images");
@@ -673,7 +673,7 @@ export async function submitProductForReview(formData: FormData) {
   const adminClient = createAdminClient();
 
   if (!supabase || !adminClient) {
-    redirect("/vendor/dashboard?product=not-configured");
+    redirect("/vendor/dashboard/products/new?product=not-configured");
   }
 
   const { data: userData } = await supabase.auth.getUser();
@@ -692,29 +692,29 @@ export async function submitProductForReview(formData: FormData) {
     .single();
 
   if (!vendor) {
-    redirect("/vendor/dashboard?product=not-authorized");
+    redirect("/vendor/dashboard/products/new?product=not-authorized");
   }
 
   if (vendor.status !== "approved") {
-    redirect("/vendor/dashboard?product=vendor-not-approved");
+    redirect("/vendor/dashboard/products/new?product=vendor-not-approved");
   }
 
   const submittedFiles = formData.getAll("images");
   const fileCount = submittedFiles.filter((value) => value instanceof File && value.size > 0).length;
 
   if (fileCount === 0) {
-    redirect("/vendor/dashboard?product=image-required");
+    redirect("/vendor/dashboard/products/new?product=image-required");
   }
 
   if (fileCount > 5) {
-    redirect("/vendor/dashboard?product=max-5-images");
+    redirect("/vendor/dashboard/products/new?product=max-5-images");
   }
 
   const imageUrls = await uploadFiles("product-images", submittedFiles, vendorId || "vendor");
   const imageUrl = imageUrls[0];
 
   if (!imageUrl) {
-    redirect("/vendor/dashboard?product=image-required");
+    redirect("/vendor/dashboard/products/new?product=upload-failed");
   }
 
   const productPayload = {
@@ -736,17 +736,17 @@ export async function submitProductForReview(formData: FormData) {
     const missingGalleryColumn = error.message.toLowerCase().includes("image_urls");
 
     if (!missingGalleryColumn) {
-      redirect("/vendor/dashboard?product=submit-failed");
+      redirect("/vendor/dashboard/products/new?product=submit-failed");
     }
 
     const { error: fallbackError } = await adminClient.from("products").insert({ ...productPayload, image_urls: undefined });
 
     if (fallbackError) {
-      redirect("/vendor/dashboard?product=submit-failed");
+      redirect("/vendor/dashboard/products/new?product=submit-failed");
     }
   }
 
-  redirect("/vendor/dashboard?product=pending-review");
+  redirect("/vendor/dashboard/products?product=pending-review");
 }
 
 
